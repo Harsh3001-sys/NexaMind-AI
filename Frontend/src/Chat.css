@@ -1,0 +1,31 @@
+.chats {
+    max-width: 43rem;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 8rem;
+}
+
+.userDiv {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.9rem;
+}
+
+.aiDiv {
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.userMsg {
+    background-color: #1e1f20;
+    padding: 0.6rem 1.25rem;
+    border-radius: 1rem;
+    margin-left: 1rem;
+    max-width: 30rem;
+    width: fit-content;
+}
+
+.aiMsg {
+    background-color: transparent;
+}
