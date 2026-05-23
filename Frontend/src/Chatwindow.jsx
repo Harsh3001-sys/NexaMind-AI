@@ -1,12 +1,12 @@
 import "./Chatwindow.css";
 import Chat from "./Chat.jsx";
 import { Mycontext } from "./Mycontext.jsx";
-import { useContext, useState } from "react";
-import { HashLoader } from "react-spinners";
+import { useContext, useState, useEffect, useRef } from "react";
 
 function Chatwindow() {
-    const { prompt, setPrompt, reply, setReply, currThreadId } = useContext(Mycontext);
+    const { prompt, setPrompt, reply, setReply, currThreadId, prevChats, setPrevChats } = useContext(Mycontext);
     const [loading, setLoading] = useState(false);
+
     const getReply = async () => {
         setLoading(true);
         console.log("message: ", prompt, "threadid: ", currThreadId);
@@ -25,12 +25,34 @@ function Chatwindow() {
             const response = await fetch("http://localhost:5000/api/chat", options);
             const res = await response.json();
             console.log(res);
+            setReply(res.reply);
         } catch (e) {
             console.log(e);
         } finally {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (prompt && reply) {
+            setPrevChats(prevChats => (
+                [...prevChats, {
+                    role: "user",
+                    content: prompt
+                }
+                // , {
+                //     role: "assistant",
+                //     content: reply
+                // }
+            ]
+            ))
+
+        }
+
+        setPrompt("");
+
+    }, [reply]);
+
     return (
         <div className="chatwindow">
             <div className="navbar">
@@ -40,8 +62,8 @@ function Chatwindow() {
                 </div>
             </div>
 
-            <Chat></Chat>
-            {loading && <HashLoader color="#fff"></HashLoader>}
+            <Chat loading={loading}></Chat>
+            
             <div className="chatinput">
                 <div className="inputbox">
                     <input placeholder="Ask NexaMind"
