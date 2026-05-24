@@ -28,63 +28,66 @@ router.get('/thread', async (req, res) => {
     };
 });
 
-router.get('/thread/:threadID', async (req, res) =>{
+router.get('/thread/:threadID', async (req, res) => {
     const { threadID } = req.params;
-    try{
+    try {
         const thread = await Thread.findOne({ threadID });
 
-        if(!thread){
+        if (!thread) {
             res.status(404).send('Thread not found');
         } else {
             res.send(thread.messages);
         }
-    }catch(error){
+    } catch (error) {
         console.error('Error in route:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-router.delete('/thread/:threadID', async (req, res) =>{
+router.delete('/thread/:threadID', async (req, res) => {
     const { threadID } = req.params;
-    try{
+    try {
         const deletedThread = await Thread.findOneAndDelete({ threadID });
 
-        if(!deletedThread){
+        if (!deletedThread) {
             res.status(404).send('Thread not found');
         } else {
-            res.send('Thread deleted successfully');
+            res.send({
+                message:
+                    "Thread deleted successfully"
+            });
         }
-    }catch(error){
+    } catch (error) {
         console.error('Error in DELETE  route:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
 router.post('/chat', async (req, res) => {
-    const {threadID, messages} = req.body;
+    const { threadID, messages } = req.body;
 
-    if(!threadID || !messages){
+    if (!threadID || !messages) {
         return res.status(400).send('Required filds are missing');
     }
 
-    try{
+    try {
         let thread = await Thread.findOne({ threadID });
 
-        if(!thread){
+        if (!thread) {
             thread = new Thread({
                 threadID,
                 title: messages,
-                messages: [{role: 'user', content: messages}],
+                messages: [{ role: 'user', content: messages }],
             });
-        }else{
-            thread.messages.push({role: 'user', content: messages});
+        } else {
+            thread.messages.push({ role: 'user', content: messages });
         }
         const assistantReply = await getResponse(messages);
-        thread.messages.push({role: 'assistant', content: assistantReply});
+        thread.messages.push({ role: 'assistant', content: assistantReply });
         thread.updatedAt = Date.now();
         await thread.save();
-        res.send({reply: assistantReply});
-    }catch(error){
+        res.send({ reply: assistantReply });
+    } catch (error) {
         console.error('Error in POST /chat route:', error);
         res.status(500).send('Internal Server Error');
     }

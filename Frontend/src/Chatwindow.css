@@ -1,13 +1,43 @@
-.chatwindow{
+/* .chatwindow{
     background-color: #131314;
     height: 100vh;
     width: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     text-align: center;
+    min-width: 0;
+    
+} */
+.chatwindow{
+    background:
+        radial-gradient(
+            ellipse 120% 30% at top,
+            rgba(255, 120, 20, 0.05),
+            transparent 55%
+        ),
+        radial-gradient(
+            ellipse 140% 35% at bottom,
+            rgba(255, 110, 10, 0.06),
+            transparent 60%
+        ),
+        #131314;
+
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
+
 
 .navbar{
     width: 100%;
@@ -16,8 +46,14 @@
     align-items: center;
 }
 
+.navbar-left{
+    display: flex;
+    align-items: center;
+}
+
 .navbar span{
-    margin: 1rem 2rem;
+    margin: 1rem 1rem;
+    cursor: pointer;
 }
 
 .usericondiv{
@@ -26,8 +62,8 @@
 
 .usericon{
     background-color: #f06000;
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 2rem;
+    width: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,4 +118,60 @@ input:focus{
 .chatinput p{
     font-size: 0.75rem;
     padding: 0.5;
+}
+
+.menuBtn{
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.menuBtn:hover{
+    background: #2a2a2a;
+    border-radius: 50%;
+}
+
+.dropdown{
+    position: absolute;
+    right: 1rem;
+    top: 3.5rem;
+    background: #393a3a;
+    border-radius: 10px;
+    min-width: 120px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    
+}
+
+.dropDown-items, .items{
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropDown-items:hover, .items:hover{
+    background: #4b4b4b;
+}
+
+.menu-wrapper{
+    position: relative;
+}
+
+.login-box{
+    position: absolute;
+    left: 1rem;
+    top: 2rem;
+    background: #393a3a;
+    border-radius: 10px;
+    min-width: 120px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }

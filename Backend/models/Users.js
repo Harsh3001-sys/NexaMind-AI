@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
     profilePicture: {
       type: String,
     },
+    password: {
+      type: String,
+    },
   },
   {
     timestamps: true,

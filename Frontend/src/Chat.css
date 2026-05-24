@@ -9,7 +9,8 @@
 .chats {
     width: 100%;
     max-width: 48rem;
-    height: calc(100vh - 12rem);
+    flex: 1;
+    min-height: 0;
 
     overflow-y: auto;
     scrollbar-width: none;
@@ -29,9 +30,31 @@
 
 .welcomeTxt {
     position: absolute;
-    top: 42%;
-    left: 56%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    pointer-events: none;
+    z-index: 1;
+}
+
+.welcomeTxt h1{
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    color: #e3e3e3;
+    text-align: center;
+    margin: 0;
+
+    background: linear-gradient(
+        90deg,
+        #f3f3f3,
+        #ffb067
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .userDiv {
@@ -62,12 +85,12 @@
     color: #e3e3e3;
 }
 
-.hljs{
+.hljs {
     background-color: #262626 !important;
     border-radius: 0.5rem !important;
 }
 
-pre{
+pre {
     white-space: pre-wrap;
 }
 

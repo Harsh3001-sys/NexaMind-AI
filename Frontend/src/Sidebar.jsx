@@ -1,27 +1,30 @@
 import "./Sidebar.css";
 import { useEffect, useState, useContext } from "react";
 import { Mycontext } from "./Mycontext.jsx";
-import {v1 as uuidv1} from "uuid";
+import { v1 as uuidv1 } from "uuid";
 
-function Sidebar(){
-    const {allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats} =  useContext(Mycontext);
+function Sidebar({
+    isSidebarOpen
+}) {
+    const { allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats } = useContext(Mycontext);
+    const [openThreadId, setOpenThreadId] = useState(null);
 
-    const getThreads = async() =>{
-        try{
+    const getThreads = async () => {
+        try {
             const response = await fetch("http://localhost:5000/api/thread");
             const res = await response.json();
-            const filterData = res.map(thread =>({threadId: thread.threadId, title: thread.title}));
+            const filterData = res.map(thread => ({ threadID: thread.threadID, title: thread.title }));
             console.log(filterData);
             setAllThreads(filterData);
-        }catch(e){
+        } catch (e) {
             console.log(e);
         }
     }
 
 
-    useEffect(() =>{
+    useEffect(() => {
         getThreads();
-    }, [currThreadId]);
+    }, []);
 
     const createNewChat = () => {
         setNewChats(true);
@@ -31,8 +34,49 @@ function Sidebar(){
         setPrevChats([]);
     }
 
-    return(
-        <section className="sidebar">
+    const changeThread = async (newThreadId) => {
+        setCurrThreadId(newThreadId);
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/thread/${newThreadId}`);
+            const res = await response.json();
+            console.log(res);
+            setPrevChats(res);
+            setNewChats(false);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    const handleDropdown = (threadId) => {
+        setOpenThreadId(
+            openThreadId === threadId ? null : threadId
+        );
+    };
+
+    const deleteThread = async (threadId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/thread/${threadId}`, { method: "DELETE" });
+            const res = await response.json();
+            setAllThreads(prev => prev.filter(thread => thread.threadID !== threadId));
+            if (currThreadId === threadId) {
+                setPrevChats([]);
+                setNewChats(true);
+                setCurrThreadId(uuidv1());
+            }
+
+            setOpenThreadId(null);
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    return (
+        <section className={`sidebar ${isSidebarOpen
+            ? "open"
+            : "closed"
+            }`}>
             <button onClick={createNewChat}>
                 <img src="/src/assets/logo.png" alt="NexaMind-AI logo" className="logo"></img>
                 NexaMind-AI
@@ -42,13 +86,35 @@ function Sidebar(){
             <ul className="history">
                 {
                     allThreads?.map((thread, idx) => (
-                        <li key={idx}>{thread.title}</li>
+                        <li key={idx}
+                            onClick={() => changeThread(thread.threadID)}>{thread.title}<i className="fa-solid fa-ellipsis" onClick={(e) => {
+                                e.stopPropagation();
+                                handleDropdown(thread.threadID);
+                            }}></i>
+                            {
+                                openThreadId === thread.threadID && (
+                                    <div className="dropDown" onClick={(e) =>
+                                        e.stopPropagation()
+                                    }>
+                                        <div className="dropDownItem">
+                                            <i className="fa-solid fa-arrow-up-from-bracket"></i>
+                                            <span>Share</span>
+                                        </div>
+                                        <div className="dropDownItem" onClick={(e) => { e.stopPropagation(); deleteThread(thread.threadID) }}>
+                                            <i className="fa-regular fa-trash-can delete"></i>
+                                            <span className="delete">Delete</span>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                        </li>
                     ))
                 }
+
             </ul>
 
             <div className="sign">
-                <p>Made with &hearts; </p>
+                <p>Made with <i className="fa-solid fa-heart" style={{"color": "red"}}></i> </p>
             </div>
         </section>
     )

@@ -1,4 +1,4 @@
-.sidebar{
+/* .sidebar{
     background-color: #1e1f20;
     color: #e3e3e3;
     height: 100vh;
@@ -6,7 +6,47 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: width 0.3s ease;
     overflow: hidden;
+    flex-shrink: 0;
+} */
+
+.sidebar{
+    background:
+        radial-gradient(
+            ellipse 140% 35% at top left,
+            rgba(255,115,0,0.05),
+            transparent 50%
+        ),
+
+        radial-gradient(
+            ellipse 120% 30% at bottom left,
+            rgba(255,115,0,0.04),
+            transparent 55%
+        ),
+
+        #1e1f20;
+
+    color: #e3e3e3;
+    width: 20rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    transition: width 0.3s ease;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    border-right: 1px solid rgba(255,140,0,0.05);
+}
+
+.sidebar.open{
+    width: 20rem;
+}
+
+.sidebar.closed{
+    width: 0;
 }
 
 button{
@@ -21,8 +61,17 @@ button{
     cursor: pointer;
 }
 
-button:hover{
+/* button:hover{
     background-color:#282a2c ;
+} */
+
+button:hover{
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,115,0,0.06),
+            #282a2c
+        );
 }
 
 .logo{
@@ -61,8 +110,19 @@ button span{
     position: relative;
 }
 
-.history li:hover{
+/* .history li:hover{
     background-color:#282a2c ;
+    border-radius: 0.6rem;
+} */
+
+.history li:hover{
+    background:
+        linear-gradient(
+            90deg,
+            /* rgba(255,115,0,0.05), */
+            #282a2c
+        );
+
     border-radius: 0.6rem;
 }
 
@@ -72,4 +132,43 @@ button span{
     font-size: 1rem;
     text-align: center;
     border-top: solid 0.25px rgba(255, 255, 255, 0.5);
+}
+
+.fa-ellipsis{
+    opacity: 0;
+    position: absolute;
+    right: 0;
+}
+
+.history li:hover .fa-ellipsis{
+    opacity: 1;
+}
+
+.dropDown{
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: #393a3a;
+    border-radius: 10px;
+    min-width: 120px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    
+}
+
+.dropDownItem{
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropDownItem:hover{
+    background: #4b4b4b;
+}
+
+.delete{
+    color: #ad3232;
 }
