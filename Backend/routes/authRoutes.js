@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import User from "../models/Users.js";
 import bcrypt from "bcryptjs";
 
+
 dotenv.config(); // Load environment variables
 
 const router = express.Router();
@@ -19,31 +20,70 @@ router.get(
 );
 
 // Google Callback
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", {
+//     failureRedirect: "/login",
+//     session: false,
+//   }),
+
+//   async (req, res) => {
+//     const token = jwt.sign(
+//       {
+//         id: req.user._id,
+//         email: req.user.email,
+//       },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "7d",
+//       }
+//     );
+
+//     res.json({
+//       success: true,
+//       message: "Google Login Successful",
+//       user: req.user,
+//       token,
+//     });
+//   }
+// );
+
 router.get(
   "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login",
-    session: false,
-  }),
+  passport.authenticate(
+    "google",
+    {
+      failureRedirect:
+        "/login",
+      session: false,
+    }
+  ),
 
   async (req, res) => {
-    const token = jwt.sign(
-      {
-        id: req.user._id,
-        email: req.user.email,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
 
-    res.json({
-      success: true,
-      message: "Google Login Successful",
-      user: req.user,
-      token,
-    });
+    const token =
+      jwt.sign(
+        {
+          id: req.user._id,
+          email:
+            req.user.email,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "7d",
+        }
+      );
+
+    const encodedUser =
+      encodeURIComponent(
+        JSON.stringify(
+          req.user
+        )
+      );
+
+    res.redirect(
+      `http://localhost:5173/?token=${token}&user=${encodedUser}`
+    );
   }
 );
 

@@ -2,8 +2,11 @@ import './App.css';
 import Sidebar from "./Sidebar.jsx";
 import Chatwindow from "./Chatwindow.jsx";
 import { Mycontext } from './Mycontext.jsx';
-import { useState } from 'react';
-import {v1 as uuidv1} from "uuid";
+import { useState, useEffect } from 'react';
+import { v1 as uuidv1 } from "uuid";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -13,27 +16,76 @@ function App() {
   const [newChats, setNewChats] = useState(true);
   const [allThreads, setAllThreads] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [refreshThreads,setRefreshThreads] = useState(false);
   const providerValues = {
     prompt, setPrompt,
     reply, setReply,
     currThreadId, setCurrThreadId,
     newChats, setNewChats,
     prevChats, setPrevChats,
-    allThreads, setAllThreads
+    allThreads, setAllThreads,
+    refreshThreads,setRefreshThreads
   };
+
+  useEffect(() => {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const token =
+      params.get("token");
+
+    const user =
+      params.get("user");
+
+    if (token && user) {
+
+      localStorage.setItem(
+        "token",
+        token
+      );
+
+      localStorage.setItem(
+        "user",
+        user
+      );
+
+      // clean URL
+      window.history.replaceState(
+        {},
+        document.title,
+        "/"
+      );
+
+      window.location.reload();
+    }
+
+  }, []);
   return (
     <div className='app'>
       <Mycontext.Provider value={providerValues}>
         <Sidebar isSidebarOpen={
-            isSidebarOpen
-          }></Sidebar>
+          isSidebarOpen
+        }></Sidebar>
         <Chatwindow isSidebarOpen={
-            isSidebarOpen
-          }   setIsSidebarOpen={
-            setIsSidebarOpen
-          }></Chatwindow>
+          isSidebarOpen
+        } setIsSidebarOpen={
+          setIsSidebarOpen
+        }></Chatwindow>
       </Mycontext.Provider>
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        pauseOnHover
+        theme="dark"
+      />
     </div>
+    
   )
 }
 

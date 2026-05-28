@@ -71,7 +71,7 @@ function Chat({ loading }) {
 
                                 chat.role === "user" ?
                                     <p className="userMsg">{chat.content}</p>
-                                    : <ReactMarkdown rehypePlugins={[rehypeHighlight]} rehypePlugins={[remarkGfm]}>{chat.content}</ReactMarkdown>
+                                    : <ReactMarkdown rehypePlugins={[rehypeHighlight]} remarkPlugins={[remarkGfm]}>{chat.content}</ReactMarkdown>
                             }
 
                         </div>)
@@ -81,7 +81,7 @@ function Chat({ loading }) {
                 {
                     prevChats.length > 0 && latestReply != null &&
                     <div className="aiDiv" key="typing">
-                        <ReactMarkdown rehypePlugins={[rehypeHighlight]} rehypePlugins={[remarkGfm]}>{latestReply}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeHighlight]} remarkPlugins={[remarkGfm]}>{latestReply}</ReactMarkdown>
                     </div>
                 }
 

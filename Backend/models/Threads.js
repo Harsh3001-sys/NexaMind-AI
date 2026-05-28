@@ -17,6 +17,11 @@ const MessageSchema = new mongoose.Schema({
 });
 
 const ThreadSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     threadID: {
         type: String,
         required: true,
@@ -35,6 +40,15 @@ const ThreadSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    isShared: {
+        type: Boolean,
+        default: false
+    },
+
+    shareId: {
+        type: String,
+        default: null
+    }
 });
 
 export default mongoose.model("Thread", ThreadSchema);

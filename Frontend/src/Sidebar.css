@@ -1,52 +1,28 @@
-/* .sidebar{
-    background-color: #1e1f20;
-    color: #e3e3e3;
-    height: 100vh;
-    width: 20rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: width 0.3s ease;
-    overflow: hidden;
-    flex-shrink: 0;
-} */
-
 .sidebar{
-    background:
-        radial-gradient(
-            ellipse 140% 35% at top left,
-            rgba(255,115,0,0.05),
-            transparent 50%
-        ),
-
-        radial-gradient(
-            ellipse 120% 30% at bottom left,
-            rgba(255,115,0,0.04),
-            transparent 55%
-        ),
-
-        #1e1f20;
-
-    color: #e3e3e3;
     width: 20rem;
+    height: 100vh;
+    flex-shrink: 0;
+    background-color: #1e1f20;
 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
-    transition: width 0.3s ease;
     overflow: hidden;
-    flex-shrink: 0;
 
-    border-right: 1px solid rgba(255,140,0,0.05);
+    transition:
+        transform 0.3s ease,
+        margin-left 0.3s ease;
 }
 
 .sidebar.open{
-    width: 20rem;
+    transform: translateX(0);
+    margin-left: 0;
 }
 
 .sidebar.closed{
-    width: 0;
+    transform: translateX(-100%);
+    margin-left: -20rem;
 }
 
 button{

@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
       clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "http://localhost:5000/auth/google/callback",
     },
 
     async (accessToken, refreshToken, profile, done) => {
@@ -21,8 +21,22 @@ passport.use(
             googleId: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
-            profilePicture: profile.photos[0].value,
+            profilePicture:
+              profile.photos?.[0]
+                ?.value
+                ?.replace("=s96-c", "=s400-c")
+              || ""
           });
+        }
+        if (
+          !user.profilePicture
+        ) {
+
+          user.profilePicture =
+            profile.photos?.[0]
+              ?.value || "";
+
+          await user.save();
         }
 
         done(null, user);

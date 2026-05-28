@@ -2,16 +2,28 @@ import "./Sidebar.css";
 import { useEffect, useState, useContext } from "react";
 import { Mycontext } from "./Mycontext.jsx";
 import { v1 as uuidv1 } from "uuid";
+import { toast } from "react-toastify";
 
 function Sidebar({
     isSidebarOpen
 }) {
-    const { allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats } = useContext(Mycontext);
+    const { allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats, refreshThreads, setRefreshThreads } = useContext(Mycontext);
     const [openThreadId, setOpenThreadId] = useState(null);
 
     const getThreads = async () => {
+        const token =
+            localStorage.getItem(
+                "token"
+            );
+
+        if (!token) return;
         try {
-            const response = await fetch("http://localhost:5000/api/thread");
+            const response = await fetch("http://localhost:5000/api/thread", {
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            });
             const res = await response.json();
             const filterData = res.map(thread => ({ threadID: thread.threadID, title: thread.title }));
             console.log(filterData);
@@ -23,8 +35,15 @@ function Sidebar({
 
 
     useEffect(() => {
-        getThreads();
-    }, []);
+        const token =
+            localStorage.getItem(
+                "token"
+            );
+
+        if (token) {
+            getThreads();
+        }
+    }, [refreshThreads]);
 
     const createNewChat = () => {
         setNewChats(true);
@@ -35,10 +54,19 @@ function Sidebar({
     }
 
     const changeThread = async (newThreadId) => {
+        const token =
+            localStorage.getItem(
+                "token"
+            );
         setCurrThreadId(newThreadId);
 
         try {
-            const response = await fetch(`http://localhost:5000/api/thread/${newThreadId}`);
+            const response = await fetch(`http://localhost:5000/api/thread/${newThreadId}`, {
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            });
             const res = await response.json();
             console.log(res);
             setPrevChats(res);
@@ -55,8 +83,17 @@ function Sidebar({
     };
 
     const deleteThread = async (threadId) => {
+        const token =
+            localStorage.getItem(
+                "token"
+            );
         try {
-            const response = await fetch(`http://localhost:5000/api/thread/${threadId}`, { method: "DELETE" });
+            const response = await fetch(`http://localhost:5000/api/thread/${threadId}`, {
+                method: "DELETE", headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            });
             const res = await response.json();
             setAllThreads(prev => prev.filter(thread => thread.threadID !== threadId));
             if (currThreadId === threadId) {
@@ -72,6 +109,42 @@ function Sidebar({
         }
     }
 
+    const shareThread =
+        async (threadId) => {
+
+            const token =
+                localStorage.getItem(
+                    "token"
+                );
+
+            const response =
+                await fetch(
+
+                    `http://localhost:5000/api/thread/share/${threadId}`,
+
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    });
+
+            const res =
+                await response.json();
+
+            navigator.clipboard
+                .writeText(
+                    res.shareLink
+                );
+
+            toast.success(
+                "Link copied!"
+            );
+        }
+
     return (
         <section className={`sidebar ${isSidebarOpen
             ? "open"
@@ -84,6 +157,8 @@ function Sidebar({
             </button>
 
             <ul className="history">
+                <p style={{ "fontWeight": "bold" }}>Recent Chats</p>
+
                 {
                     allThreads?.map((thread, idx) => (
                         <li key={idx}
@@ -96,7 +171,7 @@ function Sidebar({
                                     <div className="dropDown" onClick={(e) =>
                                         e.stopPropagation()
                                     }>
-                                        <div className="dropDownItem">
+                                        <div className="dropDownItem" onClick={(e) => { e.stopPropagation(); shareThread(thread.threadID) }}>
                                             <i className="fa-solid fa-arrow-up-from-bracket"></i>
                                             <span>Share</span>
                                         </div>
@@ -114,7 +189,7 @@ function Sidebar({
             </ul>
 
             <div className="sign">
-                <p>Made with <i className="fa-solid fa-heart" style={{"color": "red"}}></i> </p>
+                <p>Made with <i className="fa-solid fa-heart" style={{ "color": "red" }}></i> </p>
             </div>
         </section>
     )
