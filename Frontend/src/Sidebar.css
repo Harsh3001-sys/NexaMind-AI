@@ -1,6 +1,6 @@
-.sidebar{
+.sidebar {
     width: 20rem;
-    height: 100vh;
+    height: 100dvh;
     flex-shrink: 0;
     background-color: #1e1f20;
 
@@ -15,17 +15,19 @@
         margin-left 0.3s ease;
 }
 
-.sidebar.open{
+.sidebar.open {
     transform: translateX(0);
     margin-left: 0;
 }
 
-.sidebar.closed{
+.sidebar.closed {
     transform: translateX(-100%);
     margin-left: -20rem;
 }
 
-button{
+.sidebar button {
+    width: calc(100% - 1.2rem);
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -41,27 +43,25 @@ button{
     background-color:#282a2c ;
 } */
 
-button:hover{
+.sidebar button:hover {
     background:
-        linear-gradient(
-            90deg,
-            rgba(255,115,0,0.06),
-            #282a2c
-        );
+        linear-gradient(90deg,
+            rgba(255, 115, 0, 0.06),
+            #282a2c);
 }
 
-.logo{
+.logo {
     height: 2rem;
     width: 2rem;
     border-radius: 50%;
     object-fit: cover;
 }
 
-button span{
+.sidebar button span {
     font-size: 1.25rem;
 }
 
-.history{
+.history {
     margin: 0.6rem;
     padding: 0.6rem;
     height: 100%;
@@ -76,33 +76,29 @@ button span{
     display: none;
 }
 
-.history li{
+.history li {
     list-style-type: none;
     cursor: pointer;
-    padding: 0.12rem 0.30rem;
+    padding: 0.4rem 2rem 0.4rem 0.5rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     margin-bottom: 0.3rem;
     font-size: 1rem;
     border: solid 0.6rem transparent;
     position: relative;
 }
 
-/* .history li:hover{
-    background-color:#282a2c ;
-    border-radius: 0.6rem;
-} */
 
-.history li:hover{
+.history li:hover {
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             /* rgba(255,115,0,0.05), */
-            #282a2c
-        );
+            #282a2c);
 
     border-radius: 0.6rem;
 }
 
-.sign{
+.sign {
     margin: 0.6rem;
     padding: 0.6rem;
     font-size: 1rem;
@@ -110,17 +106,19 @@ button span{
     border-top: solid 0.25px rgba(255, 255, 255, 0.5);
 }
 
-.fa-ellipsis{
+.fa-ellipsis {
     opacity: 0;
     position: absolute;
-    right: 0;
+    right: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.history li:hover .fa-ellipsis{
+.history li:hover .fa-ellipsis {
     opacity: 1;
 }
 
-.dropDown{
+.dropDown {
     position: absolute;
     right: 0;
     top: 100%;
@@ -129,11 +127,11 @@ button span{
     min-width: 120px;
     z-index: 100;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
 }
 
-.dropDownItem{
+.dropDownItem {
     padding: 10px 12px;
     cursor: pointer;
     display: flex;
@@ -141,10 +139,34 @@ button span{
     gap: 0.5rem;
 }
 
-.dropDownItem:hover{
+.dropDownItem:hover {
     background: #4b4b4b;
 }
 
-.delete{
+.delete {
     color: #ad3232;
+}
+
+@media (max-width:768px){
+
+    .sidebar{
+        position: fixed;
+        left: 0;
+        top: 0;
+
+        width: min(78vw, 18rem);
+        min-height: 100dvh;
+
+        z-index: 1000;
+
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.open{
+        transform: translateX(0);
+    }
+
+    .sidebar.closed{
+        transform: translateX(-100%);
+    }
 }

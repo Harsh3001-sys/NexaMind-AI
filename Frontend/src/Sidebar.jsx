@@ -5,7 +5,7 @@ import { v1 as uuidv1 } from "uuid";
 import { toast } from "react-toastify";
 
 function Sidebar({
-    isSidebarOpen
+    isSidebarOpen, setIsSidebarOpen
 }) {
     const { allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats, refreshThreads, setRefreshThreads } = useContext(Mycontext);
     const [openThreadId, setOpenThreadId] = useState(null);
@@ -51,6 +51,15 @@ function Sidebar({
         setReply(null);
         setCurrThreadId(uuidv1());
         setPrevChats([]);
+        if (
+            window.innerWidth
+            <= 768
+        ) {
+
+            setIsSidebarOpen(
+                false
+            );
+        }
     }
 
     const changeThread = async (newThreadId) => {
@@ -71,6 +80,15 @@ function Sidebar({
             console.log(res);
             setPrevChats(res);
             setNewChats(false);
+            if (
+                window.innerWidth
+                <= 768
+            ) {
+
+                setIsSidebarOpen(
+                    false
+                );
+            }
         } catch (e) {
             console.log(e);
         }
@@ -162,10 +180,15 @@ function Sidebar({
                 {
                     allThreads?.map((thread, idx) => (
                         <li key={idx}
-                            onClick={() => changeThread(thread.threadID)}>{thread.title}<i className="fa-solid fa-ellipsis" onClick={(e) => {
-                                e.stopPropagation();
-                                handleDropdown(thread.threadID);
-                            }}></i>
+                            onClick={() => changeThread(thread.threadID)}>{(thread?.title || "").trim().length > 22
+                                ? (thread?.title || "")
+                                    .trim()
+                                    .slice(0, 22) + "..."
+                                : (thread?.title || "")
+                                    .trim()}<i className="fa-solid fa-ellipsis" onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDropdown(thread.threadID);
+                                    }}></i>
                             {
                                 openThreadId === thread.threadID && (
                                     <div className="dropDown" onClick={(e) =>

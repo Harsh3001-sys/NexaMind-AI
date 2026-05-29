@@ -7,21 +7,20 @@
 } */
 
 .chats {
-    width: 100%;
-    max-width: 48rem;
+    width: min(100%, 48rem);
     flex: 1;
     min-height: 0;
 
     overflow-y: auto;
+    overflow-x: hidden;
+
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    padding: 2rem 1rem;
+    padding: 1rem 1.2rem;
     margin: 0 auto;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    box-sizing: border-box;
 }
 
 .chats::-webkit-scrollbar {
@@ -40,18 +39,16 @@
     z-index: 1;
 }
 
-.welcomeTxt h1{
+.welcomeTxt h1 {
     font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 600;
     color: #e3e3e3;
     text-align: center;
     margin: 0;
 
-    background: linear-gradient(
-        90deg,
-        #f3f3f3,
-        #ffb067
-    );
+    background: linear-gradient(90deg,
+            #f3f3f3,
+            #ffb067);
 
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -60,7 +57,7 @@
 .userDiv {
     display: flex;
     justify-content: flex-end;
-    font-size: 0.9rem;
+    width: 100%;
     margin-bottom: 1rem;
 }
 
@@ -73,11 +70,17 @@
 .userMsg {
     background-color: #1e1f20;
     color: #e3e3e3;
-    padding: 0.6rem 1.25rem;
+    padding: 0.75rem 1.1rem;
     border-radius: 1rem;
     margin-left: 1rem;
-    max-width: 30rem;
+
     width: fit-content;
+    max-width: min(85%, 38rem);
+    text-align: left;
+    line-height: 1.5;
+
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 .aiMsg {
@@ -91,7 +94,13 @@
 }
 
 pre {
-    white-space: pre-wrap;
+    overflow-x: auto;
+    border-radius: 0.6rem;
+    max-width: 100%;
+}
+
+code {
+    word-break: break-word;
 }
 
 .loaderWrapper {
@@ -103,6 +112,9 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 1rem 0;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 th,
@@ -124,4 +136,53 @@ td {
 
 tr:nth-child(even) td {
     background: #222;
+}
+
+@media(max-width:768px) {
+
+    .chats {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .welcomeTxt h1 {
+        font-size: 2rem;
+        padding: 0 1rem;
+    }
+
+    .userMsg {
+        max-width: 88%;
+        font-size: 0.95rem;
+    }
+
+    .aiDiv {
+        font-size: 0.95rem;
+    }
+
+    th,
+    td {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    pre {
+        font-size: 0.85rem;
+    }
+}
+
+@media(max-width:480px) {
+
+    .welcomeTxt h1 {
+        font-size: 1.8rem;
+    }
+
+    .userMsg {
+        max-width: 95%;
+        padding: 0.7rem 1rem;
+    }
+
+    .chats {
+        padding-left: 0.9rem;
+        padding-right: 0.9rem;
+    }
 }

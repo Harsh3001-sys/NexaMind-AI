@@ -1,37 +1,20 @@
-/* .chatwindow{
-    background-color: #131314;
-    height: 100vh;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    min-width: 0;
-    
-} */
-.chatwindow{
+.chatwindow {
     background:
-        radial-gradient(
-            ellipse 120% 30% at top,
+        radial-gradient(ellipse 120% 30% at top,
             rgba(255, 120, 20, 0.05),
-            transparent 55%
-        ),
-        radial-gradient(
-            ellipse 140% 35% at bottom,
+            transparent 55%),
+        radial-gradient(ellipse 140% 35% at bottom,
             rgba(255, 110, 10, 0.06),
-            transparent 60%
-        ),
+            transparent 60%),
         #131314;
 
     width: 100%;
     flex: 1;
     min-width: 0;
-
+    height: 100dvh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     align-items: center;
     text-align: center;
     position: relative;
@@ -39,47 +22,58 @@
 }
 
 
-.navbar{
+.navbar {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.3rem 0.8rem;
+    box-sizing: border-box;
+    flex-wrap: nowrap;
+    min-width: 0;
+    flex-shrink: 0;
+z-index: 20;
+position: relative;
 }
 
-.navbar-left{
+.navbar-left {
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
-.navbar span{
+.navbar span {
     margin: 1rem 1rem;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.usericondiv{
+.usericondiv {
     margin: 1rem 2rem;
 }
 
 
 
-.chatinput{
+.chatinput {
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
 }
 
-.inputbox{
-    width: 100%;
+.inputbox {
+    width: min(92%, 48rem);
     position: relative;
-    max-width: 48rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-input{
+.chatinput  input {
     width: 100%;
     border: none;
     background-color: #1e1f20;
@@ -89,11 +83,11 @@ input{
     border-radius: 2rem;
 }
 
-input:focus{
+.chatinput  input:focus {
     outline: none;
 }
 
-#submit{
+#submit {
     height: 2.25rem;
     width: 2.25rem;
     font-size: 1.25rem;
@@ -105,12 +99,12 @@ input:focus{
     align-items: center;
 }
 
-.chatinput p{
+.chatinput p {
     font-size: 0.75rem;
     padding: 0.5;
 }
 
-.menuBtn{
+.menuBtn {
     background: transparent;
     border: none;
     color: white;
@@ -118,27 +112,32 @@ input:focus{
     font-size: 1.2rem;
     margin: 0;
     padding: 0.5rem;
+    position: relative;
+    z-index: 1001;
+
+    transition: transform 0.3s ease;
 }
 
-.menuBtn:hover{
+.menuBtn:hover {
     background: #2a2a2a;
     border-radius: 50%;
 }
 
-.dropdown{
+.dropdown {
     position: absolute;
-    right: 1rem;
-    top: 3.5rem;
+    right: 0.8rem;
+    top: 4rem;
     background: #393a3a;
     border-radius: 10px;
-    min-width: 120px;
+    width: min(180px, 90vw);
     z-index: 100;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
 }
 
-.dropDown-items, .items{
+.dropDown-items,
+.items {
     padding: 10px 12px;
     cursor: pointer;
     display: flex;
@@ -146,31 +145,34 @@ input:focus{
     gap: 0.5rem;
 }
 
-.dropDown-items:hover, .items:hover{
+.dropDown-items:hover,
+.items:hover {
     background: #4b4b4b;
 }
 
-.menu-wrapper{
+.menu-wrapper {
     position: relative;
 }
 
-.login-box{
+.login-box {
     position: absolute;
-    left: 1rem;
-    top: 2rem;
+    left: 0;
+    top: 2.7rem;
     background: #393a3a;
     border-radius: 10px;
     min-width: 120px;
     z-index: 100;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    width: max-content;
+    min-width: 130px;
 }
 
-.userIconDiv{
+.userIconDiv {
     margin-right: 1.5rem;
 }
 
-.usericon{
+.usericon {
     width: 44px;
     height: 44px;
 
@@ -184,22 +186,21 @@ input:focus{
 
     background: #1e1f20;
 
-    border: 2px solid
-    rgba(255,255,255,0.08);
+    border: 2px solid rgba(255, 255, 255, 0.08);
 
     cursor: pointer;
 
     transition: all 0.2s ease;
 }
 
-.usericon:hover{
+.usericon:hover {
     transform: scale(1.05);
 
     border-color:
-    rgba(255,255,255,0.15);
+        rgba(255, 255, 255, 0.15);
 }
 
-.profile-img{
+.profile-img {
     width: 100%;
     height: 100%;
 
@@ -207,4 +208,93 @@ input:focus{
     object-position: center;
 
     display: block;
+}
+
+
+
+.userMsg,
+.aiMsg {
+    max-width: min(85%, 850px);
+    width: fit-content;
+    word-wrap: break-word;
+}
+
+@media(max-width:768px) {
+
+    .userMsg,
+    .aiMsg {
+        max-width: 92%;
+    }
+}
+
+@media(max-width:768px) {
+
+    .usericondiv {
+        margin: 1rem;
+    }
+
+    .navbar span {
+        margin: 0.7rem;
+    }
+}
+
+@media (max-width:768px) {
+
+    .sidebar.open~.chatwindow .menuBtn {
+        transform: translateX(min(70vw, 260px));
+    }
+}
+
+@media (max-width:480px) {
+
+    .navbar span {
+        font-size: 0.95rem;
+        margin: 0.5rem;
+    }
+
+    .usericon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .chatinput  input {
+        font-size: 0.95rem;
+        padding: 0.95rem 3.2rem 0.95rem 1rem;
+    }
+
+    .welcomeTxt h1 {
+        font-size: 1.8rem;
+    }
+
+    .userMsg {
+        max-width: 92%;
+    }
+
+    .chats {
+        padding: 1rem 0.8rem;
+    }
+
+    #submit {
+        right: 0.8rem;
+        height: 2rem;
+        width: 2rem;
+        font-size: 1rem;
+    }
+}
+
+/* tablet */
+@media (min-width:769px) and (max-width:1024px) {
+
+    .inputbox {
+        width: 88%;
+    }
+
+    .navbar span {
+        font-size: 1rem;
+    }
+
+    .usericon {
+        width: 42px;
+        height: 42px;
+    }
 }

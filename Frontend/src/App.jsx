@@ -15,8 +15,8 @@ function App() {
   const [prevChats, setPrevChats] = useState([]);
   const [newChats, setNewChats] = useState(true);
   const [allThreads, setAllThreads] = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [refreshThreads,setRefreshThreads] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
+  const [refreshThreads, setRefreshThreads] = useState(false);
   const providerValues = {
     prompt, setPrompt,
     reply, setReply,
@@ -24,7 +24,7 @@ function App() {
     newChats, setNewChats,
     prevChats, setPrevChats,
     allThreads, setAllThreads,
-    refreshThreads,setRefreshThreads
+    refreshThreads, setRefreshThreads
   };
 
   useEffect(() => {
@@ -68,7 +68,11 @@ function App() {
       <Mycontext.Provider value={providerValues}>
         <Sidebar isSidebarOpen={
           isSidebarOpen
-        }></Sidebar>
+        }
+          setIsSidebarOpen={
+            setIsSidebarOpen
+          }
+        ></Sidebar>
         <Chatwindow isSidebarOpen={
           isSidebarOpen
         } setIsSidebarOpen={
@@ -85,7 +89,7 @@ function App() {
         theme="dark"
       />
     </div>
-    
+
   )
 }
 
