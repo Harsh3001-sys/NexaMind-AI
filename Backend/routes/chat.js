@@ -3,6 +3,7 @@ import Thread from '../models/Threads.js';
 import getResponse from '../utils/gemini.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import generateTitle from "../utils/generateTitle.js";
+import categorizeChat from '../utils/categorizeChat.js';
 import { v1 as uuidv1 } from "uuid";
 
 const router = express.Router();
@@ -85,11 +86,19 @@ router.post('/chat', authMiddleware, async (req, res) => {
                 await generateTitle(
                     messages
                 );
+            const category =
+                await categorizeChat(
+                    messages
+                );
             console.log(generatedTitle);
             thread = new Thread({
                 userId,
                 threadID,
                 title: generatedTitle,
+                educationLevel:
+                    category.educationLevel,
+                subject:
+                    category.subject,
                 messages: [{ role: 'user', content: messages }],
             });
         } else {

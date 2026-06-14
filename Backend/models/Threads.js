@@ -48,6 +48,22 @@ const ThreadSchema = new mongoose.Schema({
     shareId: {
         type: String,
         default: null
+    },
+
+    educationLevel: {
+        type: String,
+        enum: [
+            "BTech",
+            "11-12",
+            "School",
+            "General"
+        ],
+        default: "General"
+    },
+
+    subject: {
+        type: String,
+        default: "General"
     }
 });
 
