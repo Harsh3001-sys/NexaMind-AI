@@ -1,6 +1,6 @@
 import "./AuthModal.css";
 import { useState } from "react";
-import logo from "./assets/logo.png";
+import logo from "./assets/logo2.webp";
 import { toast } from "react-toastify";
 
 function AuthModal({ setShowAuth, setUser }) {
@@ -47,7 +47,7 @@ function AuthModal({ setShowAuth, setUser }) {
           };
 
       const response = await fetch(
-        `http://localhost:5000/auth/${endpoint}`,
+        `http://localhost:4000/auth/${endpoint}`,
         {
           method: "POST",
           headers: {
@@ -102,7 +102,7 @@ function AuthModal({ setShowAuth, setUser }) {
 
   const handleGoogleLogin = () => {
     window.location.href =
-      "http://localhost:5000/auth/google";
+      "http://localhost:4000/auth/google";
   };
 
   return (

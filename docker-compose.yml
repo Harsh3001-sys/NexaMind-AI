@@ -1,0 +1,89 @@
+services:
+
+  backend1:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.dev
+
+    container_name: nexamind-backend-1
+
+    ports:
+      - "5001:5000"
+
+    env_file:
+      - ./Backend/.env
+
+    environment:
+      - PORT=5000
+      - SERVER_NAME=backend-1
+      - CHOKIDAR_USEPOLLING=true
+
+    volumes:
+      - ./Backend:/app
+      - backend1_node_modules:/app/node_modules
+
+
+  backend2:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.dev
+
+    container_name: nexamind-backend-2
+
+    ports:
+      - "5002:5000"
+
+    env_file:
+      - ./Backend/.env
+
+    environment:
+      - PORT=5000
+      - SERVER_NAME=backend-2
+      - CHOKIDAR_USEPOLLING=true
+
+    volumes:
+      - ./Backend:/app
+      - backend2_node_modules:/app/node_modules
+
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.dev
+
+    container_name: nexamind-frontend-dev
+
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./Frontend:/app
+      - frontend_node_modules:/app/node_modules
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile.dev
+
+    container_name: nexamind-gateway
+
+    ports:
+      - "4000:4000"
+
+    volumes:
+      - ./Gateway:/app
+      - gateway_node_modules:/app/node_modules
+
+    depends_on:
+      - backend1
+      - backend2
+
+volumes:
+  backend1_node_modules:
+  backend2_node_modules:
+  frontend_node_modules:
+  gateway_node_modules:

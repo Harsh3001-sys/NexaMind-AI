@@ -116,7 +116,7 @@ function Chatwindow({
 
             const response =
                 await fetch(
-                    "http://localhost:5000/api/chat",
+                    "http://localhost:4000/api/chat",
                     options
                 );
 
@@ -191,7 +191,7 @@ function Chatwindow({
 
             const response =
                 await fetch(
-                    "http://localhost:5000/auth/logout",
+                    "http://localhost:4000/auth/logout",
                     {
                         method: "POST",
                     }

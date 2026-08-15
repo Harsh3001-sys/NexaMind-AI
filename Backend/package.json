@@ -1,5 +1,9 @@
 {
   "type": "module",
+  "scripts": {
+    "dev": "nodemon Server.js",
+    "start": "node Server.js"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",

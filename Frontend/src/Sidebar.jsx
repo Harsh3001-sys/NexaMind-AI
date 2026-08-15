@@ -22,7 +22,7 @@ function Sidebar({
 
         if (!token) return;
         try {
-            const response = await fetch("http://localhost:5000/api/thread", {
+            const response = await fetch("http://localhost:4000/api/thread", {
                 headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -116,7 +116,7 @@ function Sidebar({
         setCurrThreadId(newThreadId);
 
         try {
-            const response = await fetch(`http://localhost:5000/api/thread/${newThreadId}`, {
+            const response = await fetch(`http://localhost:4000/api/thread/${newThreadId}`, {
                 headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -152,7 +152,7 @@ function Sidebar({
                 "token"
             );
         try {
-            const response = await fetch(`http://localhost:5000/api/thread/${threadId}`, {
+            const response = await fetch(`http://localhost:4000/api/thread/${threadId}`, {
                 method: "DELETE", headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -184,7 +184,7 @@ function Sidebar({
             const response =
                 await fetch(
 
-                    `http://localhost:5000/api/thread/share/${threadId}`,
+                    `http://localhost:4000/api/thread/share/${threadId}`,
 
                     {
                         method:
@@ -246,7 +246,7 @@ function Sidebar({
             : "closed"
             }`}>
             <button onClick={createNewChat}>
-                <img src="/src/assets/logo.png" alt="NexaMind-AI logo" className="logo"></img>
+                <img src="/src/assets/logo2.webp" alt="NexaMind-AI logo" className="logo"></img>
                 NexaMind-AI
                 <span><i className="fa-regular fa-pen-to-square"></i></span>
             </button>

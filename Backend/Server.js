@@ -44,37 +44,14 @@ const connectDB = async ()=>{
     }
 }
 
+app.get("/health", (req, res)=>{
+  res.status(200).json({
+    status: "nexamind network healthy",
+    server: process.env.SERVER_NAME || "backend"
+  });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     connectDB(); // Connect to the database when the server starts
 })
-
-
-
-// app.post("/test", async (req, res) => {
-//   const options = {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "x-goog-api-key": process.env.GEMINI_API_KEY // Note the custom header name
-//     },
-//     body: JSON.stringify({
-//       contents: [
-//         {
-//           parts: [{ text: "Hello!" }]
-//         }
-//       ]
-//     })
-//   };
-
-//   try {
-//     const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent", options);
-//     const data = await response.json();
-//     console.log(data.candidates[0].content.parts[0].text);
-    
-//     // Gemini returns the text inside candidates[0].content.parts[0].text
-//     res.send(data.candidates[0].content.parts[0].text);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
