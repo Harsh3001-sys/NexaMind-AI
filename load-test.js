@@ -14,12 +14,12 @@ export const options = {
 export default function () {
 
     const response = http.get(
-        'http://localhost:4000/api/test-routing'
+        'http://localhost:4000/api/load-test'
     );
 
     check(response, {
         'status is 200': (r) => r.status === 200,
         'gateway responded': (r) =>
-            r.body.includes('NexaFlow'),
+            r.body.includes('NexaMind'),
     });
 }

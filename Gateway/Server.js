@@ -1,6 +1,20 @@
 import express from "express";
 import axios from "axios";
 
+
+import {
+    recordRequest,
+    recordRequestSuccess,
+    recordRequestFailure,
+    recordLatency,
+    getMetrics,
+    recordCircuitOpen,
+    recordCircuitHalfOpen,
+    recordCircuitClose,
+    recordHealthCheckFailure,
+    recordFailover
+} from "./metrics.js";
+
 const app = express();
 
 const PORT = 4000;
@@ -85,6 +99,7 @@ function recordFailure(backend) {
         circuit.state = "OPEN";
 
         circuit.openedAt = Date.now();
+        recordCircuitHalfOpen();
 
         console.log(
             `🔴 HALF-OPEN test failed. Circuit OPEN for ${backend}`
@@ -107,6 +122,7 @@ function recordFailure(backend) {
         circuit.state = "OPEN";
 
         circuit.openedAt = Date.now();
+        recordCircuitOpen();
 
         console.log(
             `🔴 Circuit OPEN for ${backend}`
@@ -130,6 +146,7 @@ function recordSuccess(backend) {
         circuit.openedAt = null;
 
         circuit.testInProgress = false;
+        recordCircuitClose();
 
         console.log(
             `🟢 Circuit CLOSED for ${backend}`
@@ -205,57 +222,9 @@ app.get("/circuit-status", (req, res) => {
 // SELECT NEXT BACKEND
 // ===============================
 
-// const updateHealthyPool = async () => {
-
-//     const newHealthyBackends = [];
-
-//     for (const backend of BACKENDS) {
-
-//         try {
-
-//             const response =
-//                 await axios.get(
-//                     `${backend}/health`,
-//                     {
-//                         timeout: 1500
-//                     }
-//                 );
-
-//             if (response.status === 200) {
-
-//                 newHealthyBackends.push(
-//                     backend
-//                 );
-
-//             }
-
-//         } catch (error) {
-
-//             console.log(
-//                 `❌ Backend unhealthy: ${backend}`
-//             );
-//         }
-//     }
-
-//     healthyBackends =
-//         newHealthyBackends;
-
-//     // Keep current index valid
-//     if (
-//         currentBackend >=
-//         healthyBackends.length
-//     ) {
-//         currentBackend = 0;
-//     }
-
-//     console.log(
-//         "🟢 Healthy backend pool:",
-//         healthyBackends
-//     );
-// };
 
 const updateHealthyPool = async () => {
-
+    const previousHealthyBackends = [...healthyBackends];
     const newHealthyBackends = [];
 
     for (const backend of BACKENDS) {
@@ -303,11 +272,31 @@ const updateHealthyPool = async () => {
             console.log(
                 `❌ Backend unhealthy: ${backend}`
             );
-
+            recordHealthCheckFailure();
             // Health check itself failed,
             // so tell the circuit breaker.
             recordFailure(backend);
         }
+    }
+    const backendRemoved =
+        previousHealthyBackends.some(
+            (backend) =>
+                !newHealthyBackends.includes(backend)
+        );
+
+    const anotherBackendAvailable =
+        newHealthyBackends.length > 0;
+
+    if (
+        backendRemoved &&
+        anotherBackendAvailable
+    ) {
+
+        recordFailover();
+
+        console.log(
+            "🔄 Failover detected. Traffic redirected to healthy backend(s)."
+        );
     }
 
     healthyBackends =
@@ -333,35 +322,6 @@ const updateHealthyPool = async () => {
     );
 };
 
-// const getNextHealthyBackend = () => {
-
-//     if (
-//         healthyBackends.length === 0
-//     ) {
-
-//         throw new Error(
-//             "No healthy backend available"
-//         );
-//     }
-
-//     for (let i = 0; i < healthyBackends.length; i++) {
-
-//         const backend =
-//             healthyBackends[currentBackend];
-
-//         currentBackend =
-//             (currentBackend + 1) %
-//             healthyBackends.length;
-
-//         if (!isCircuitOpen(backend)) {
-//             return backend;
-//         }
-//     }
-
-//     throw new Error(
-//         "No backend available due to open circuits"
-//     );
-// };
 
 const getNextHealthyBackend = () => {
 
@@ -401,13 +361,16 @@ const getNextHealthyBackend = () => {
 const proxyRequest = async (req, res) => {
 
     let backend;
+    const startTime = Date.now();
 
-    console.log(
-        `Routing ${req.method} ${req.originalUrl} → ${backend}`
-    );
+
 
     try {
         backend = getNextHealthyBackend();
+        recordRequest(backend);
+        console.log(
+            `Routing ${req.method} ${req.originalUrl} → ${backend}`
+        );
         const response = await axios({
             method: req.method,
 
@@ -432,14 +395,20 @@ const proxyRequest = async (req, res) => {
             validateStatus:
                 () => true
         });
+        const latency =
+            Date.now() - startTime;
+
+        recordLatency(latency);
 
         if (response.status >= 500) {
 
             recordFailure(backend);
+            recordRequestFailure(backend);
 
         } else {
 
             recordSuccess(backend);
+            recordRequestSuccess(backend);
         }
 
 
@@ -491,6 +460,7 @@ const proxyRequest = async (req, res) => {
         // Backend connection/network failure
         if (backend) {
             recordFailure(backend);
+            recordRequestFailure(backend);
         }
 
         res.status(502).json({
@@ -570,6 +540,14 @@ app.get(
         }
     }
 );
+
+app.get("/metrics", (req, res) => {
+
+    res.json(
+        getMetrics()
+    );
+
+});
 
 
 // ===============================

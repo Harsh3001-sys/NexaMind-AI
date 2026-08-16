@@ -8,6 +8,14 @@ import { v1 as uuidv1 } from "uuid";
 
 const router = express.Router();
 
+router.get('/load-test', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "NexaMind backend is responding",
+        server: process.env.SERVER_NAME || "backend"
+    });
+});
+
 router.post('/test', async (req, res) => {
     try {
         const thread = new Thread({
