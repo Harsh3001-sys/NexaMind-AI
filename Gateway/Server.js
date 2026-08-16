@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios";
-
+import dns from "dns";
 
 import {
     recordRequest,
@@ -60,10 +60,31 @@ app.use((req, res, next) => {
 // BACKEND SERVERS
 // ===============================
 
-const BACKENDS = [
-    "http://backend1:5000",
-    "http://backend2:5000"
-];
+let BACKENDS = [];
+
+const BACKEND_SERVICE = "backend";
+const BACKEND_PORT = 5000;
+
+const discoverBackends = async () => {
+    try {
+        const addresses = await dns.promises.resolve4(
+            BACKEND_SERVICE
+        );
+
+        return addresses.map(
+            (ip) => `http://${ip}:${BACKEND_PORT}`
+        );
+
+    } catch (error) {
+        console.error(
+            "❌ Backend discovery failed:",
+            error.message
+        );
+
+        return [];
+    }
+};
+
 
 let healthyBackends = [];
 
@@ -71,14 +92,14 @@ let currentBackend = 0;
 
 const circuitState = {};
 
-BACKENDS.forEach((backend) => {
-    circuitState[backend] = {
-        state: "CLOSED",
-        failures: 0,
-        openedAt: null,
-        testInProgress: false
-    };
-});
+// BACKENDS.forEach((backend) => {
+//     circuitState[backend] = {
+//         state: "CLOSED",
+//         failures: 0,
+//         openedAt: null,
+//         testInProgress: false
+//     };
+// });
 
 const failureThreshold = 3;
 const resetTimeout = 10000; // 10 seconds
@@ -278,9 +299,10 @@ const updateHealthyPool = async () => {
             recordFailure(backend);
         }
     }
-    const backendRemoved =
+    const failedBackend =
         previousHealthyBackends.some(
             (backend) =>
+                BACKENDS.includes(backend) &&
                 !newHealthyBackends.includes(backend)
         );
 
@@ -288,7 +310,7 @@ const updateHealthyPool = async () => {
         newHealthyBackends.length > 0;
 
     if (
-        backendRemoved &&
+        failedBackend &&
         anotherBackendAvailable
     ) {
 
@@ -592,20 +614,61 @@ app.use(
 
 const startGateway = async () => {
 
-    await updateHealthyPool();
+    BACKENDS = await discoverBackends();
 
-    app.listen(PORT, () => {
+    console.log(
+        "🔍 Initial backend discovery:",
+        BACKENDS
+    );
 
-        console.log(
-            `🔥 NexaFlow Gateway running on port ${PORT}`
-        );
+    BACKENDS.forEach((backend) => {
+
+        circuitState[backend] = {
+            state: "CLOSED",
+            failures: 0,
+            openedAt: null,
+            testInProgress: false
+        };
 
     });
 
-    setInterval(
-        updateHealthyPool,
-        5000
-    );
+    await updateHealthyPool();
+
+    app.listen(PORT, () => {
+        console.log(
+            `🔥 NexaFlow Gateway running on port ${PORT}`
+        );
+    });
+
+    setInterval(async () => {
+
+        const discoveredBackends =
+            await discoverBackends();
+
+        if (discoveredBackends.length > 0) {
+            BACKENDS = discoveredBackends;
+            BACKENDS.forEach((backend) => {
+
+                if (!circuitState[backend]) {
+
+                    circuitState[backend] = {
+                        state: "CLOSED",
+                        failures: 0,
+                        openedAt: null,
+                        testInProgress: false
+                    };
+
+                    console.log(
+                        `🆕 Circuit initialized for ${backend}`
+                    );
+                }
+
+            });
+        }
+
+        await updateHealthyPool();
+
+    }, 5000);
 };
 
 startGateway();
