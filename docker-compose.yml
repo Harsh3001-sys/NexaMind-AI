@@ -52,7 +52,21 @@ services:
     depends_on:
       - backend
 
+  redis:
+    image: redis:7-alpine
+
+    container_name: nexamind-redis
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    command: redis-server --appendonly yes
+
 volumes:
   backend_node_modules:
   frontend_node_modules:
   gateway_node_modules:
+  redis_data:

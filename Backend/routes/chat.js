@@ -4,6 +4,7 @@ import getResponse from '../utils/gemini.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import generateTitle from "../utils/generateTitle.js";
 import categorizeChat from '../utils/categorizeChat.js';
+import { redisClient } from '../config/redis.js';
 import { v1 as uuidv1 } from "uuid";
 
 const router = express.Router();
@@ -33,12 +34,42 @@ router.post('/test', async (req, res) => {
 router.get('/thread', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
-        const thread = (await Thread.find({ userId }).sort({ updatedAt: -1 }));
-        res.send(thread);
+
+        // Each user gets their own cache
+        const cacheKey = `threads:${userId}`;
+
+        // 1. Check Redis
+        const cachedThreads = await redisClient.get(cacheKey);
+
+        if (cachedThreads) {
+            console.log(`[REDIS] Cache HIT - ${cacheKey}`);
+            return res.json(JSON.parse(cachedThreads));
+        }
+
+        // 2. Cache MISS → MongoDB
+        console.log(`[REDIS] Cache MISS - ${cacheKey}`);
+
+        const threads = await Thread.find({ userId })
+            .sort({ updatedAt: -1 });
+
+        // 3. Store result in Redis
+        await redisClient.set(
+            cacheKey,
+            JSON.stringify(threads),
+            {
+                EX: 5000
+            }
+        );
+
+        console.log(`[REDIS] Cache SET - ${cacheKey}`);
+
+        // 4. Return data
+        res.json(threads);
+
     } catch (error) {
-        console.error('Error in  route:', error);
+        console.error('Error in GET /thread:', error);
         res.status(500).send('Internal Server Error');
-    };
+    }
 });
 
 router.get('/thread/:threadID', authMiddleware, async (req, res) => {
@@ -67,6 +98,9 @@ router.delete('/thread/:threadID', authMiddleware, async (req, res) => {
         if (!deletedThread) {
             res.status(404).send('Thread not found');
         } else {
+            // Thread list changed → invalidate Redis cache
+            await redisClient.del(`threads:${userId}`);
+            console.log(`[REDIS] Cache INVALIDATED - threads:${userId}`);
             res.send({
                 message:
                     "Thread deleted successfully"
@@ -150,6 +184,9 @@ router.post('/chat', authMiddleware, async (req, res) => {
         thread.messages.push({ role: 'assistant', content: assistantReply });
         thread.updatedAt = Date.now();
         await thread.save();
+        // Thread list changed → invalidate Redis cache
+        await redisClient.del(`threads:${userId}`);
+        console.log(`[REDIS] Cache INVALIDATED - threads:${userId}`);
         res.send({ reply: assistantReply });
     } catch (error) {
         console.error('Error in POST /chat route:', error);

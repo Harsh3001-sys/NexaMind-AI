@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import "./config/passport.js"; // Import passport configuration
+import { connectRedis } from "./config/redis.js";
 
 dotenv.config(); // You must call .config() to actually load the variables
 
@@ -51,7 +52,8 @@ app.get("/health", (req, res)=>{
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
-    connectDB(); // Connect to the database when the server starts
+    await connectDB(); // Connect to the database when the server starts
+    await connectRedis(); // Connect to Redis when the server starts
 })
