@@ -6,9 +6,12 @@ import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import "highlight.js/styles/github-dark.css"
 import { HashLoader } from "react-spinners";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 function Chat({ loading }) {
-    const { newChats, prevChats, reply, setPrevChats } = useContext(Mycontext);
+    const { newChats, prevChats, reply, setPrevChats, setPrompt } = useContext(Mycontext);
     const [latestReply, setLatestReply] = useState(null);
     const bottomRef = useRef(null);
 
@@ -18,7 +21,13 @@ function Chat({ loading }) {
         });
     }, [prevChats, latestReply, loading]);
 
+    const handleLearnClick = () => {
+        setPrompt("I want to learn something new. Help me understand a topic step by step with examples.");
+    };
 
+    const handleBuildClick = () => {
+        setPrompt("I have an idea or problem I'm working on. Help me plan, build, debug, or improve it.");
+    };
 
     useEffect(() => {
         if (!reply) return;
@@ -50,8 +59,38 @@ function Chat({ loading }) {
     return (
         <>
             {newChats && prevChats.length === 0 && !loading && (
-                <div className="welcomeTxt">
-                    <h1>Where should we start?</h1>
+                <div className="welcomeSection">
+                    <div className="welcomeTxt">
+                        <h1>What are we working on?</h1>
+                    </div>
+                    <div className="suggestionCards">
+
+                        <Card variant="outlined" className="suggestionCard" onClick={handleLearnClick}>
+                            <CardContent>
+                                <Typography variant="h6">
+                                    <i className="fa-solid fa-lightbulb"></i> Learn & Explore
+                                </Typography>
+
+                                <Typography variant="body2">
+                                    Understand concepts, ask questions and explore ideas.
+                                </Typography>
+                            </CardContent>
+                        </Card>
+
+                        <Card variant="outlined" className="suggestionCard" onClick={handleBuildClick}>
+                            <CardContent>
+                                <Typography variant="h6">
+                                    <i className="fa-solid fa-wand-magic-sparkles"></i> Build something
+                                </Typography>
+
+                                <Typography variant="body2">
+                                    Write, code, brainstorm, debug and build things.
+                                </Typography>
+                            </CardContent>
+                        </Card>
+
+                    </div>
+
                 </div>
             )
 

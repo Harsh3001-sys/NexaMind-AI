@@ -3,13 +3,26 @@ import { useEffect, useState, useContext } from "react";
 import { Mycontext } from "./Mycontext.jsx";
 import { v1 as uuidv1 } from "uuid";
 import { toast } from "react-toastify";
+import AuthModal from "./AuthModal.jsx";
 
 function Sidebar({
     isSidebarOpen, setIsSidebarOpen
 }) {
     const { allThreads, setAllThreads, currThreadId, setCurrThreadId, setPrompt, setReply, setPrevChats, setNewChats, refreshThreads, setRefreshThreads } = useContext(Mycontext);
     const [openThreadId, setOpenThreadId] = useState(null);
-    const [openFolders, setOpenFolders] = useState({ BTech: true, School: false, "11-12": false, General: false });
+    const [openFolders, setOpenFolders] = useState({
+        Work: true,
+        Study: false,
+        Projects: false,
+        Personal: false
+    });
+    const [showAuth, setShowAuth] = useState(false);
+
+    const [user, setUser] = useState(
+        JSON.parse(
+            localStorage.getItem("user")
+        )
+    );
     const [openSubjects,
         setOpenSubjects] =
         useState({});
@@ -32,8 +45,7 @@ function Sidebar({
             const filterData = res.map(thread => ({
                 threadID: thread.threadID,
                 title: thread.title,
-                educationLevel:
-                    thread.educationLevel,
+                category: thread.category,
                 subject:
                     thread.subject
             }));
@@ -51,28 +63,28 @@ function Sidebar({
                 thread
             ) => {
 
-                const level =
-                    thread.educationLevel
-                    || "General";
+                const category =
+                    thread.category
+                    || "Personal";
 
                 const subject =
                     thread.subject
                     || "General";
 
-                if (!acc[level]) {
+                if (!acc[category]) {
 
-                    acc[level] = {};
+                    acc[category] = {};
                 }
 
                 if (
-                    !acc[level][subject]
+                    !acc[category][subject]
                 ) {
 
-                    acc[level][subject]
+                    acc[category][subject]
                         = [];
                 }
 
-                acc[level][subject]
+                acc[category][subject]
                     .push(thread);
 
                 return acc;
@@ -241,404 +253,428 @@ function Sidebar({
         };
 
     return (
-        <section className={`sidebar ${isSidebarOpen
-            ? "open"
-            : "closed"
-            }`}>
-            <button onClick={createNewChat}>
-                <img src="/src/assets/logo2.webp" alt="NexaMind-AI logo" className="logo"></img>
-                NexaMind-AI
-                <span><i className="fa-regular fa-pen-to-square"></i></span>
-            </button>
+        <>
+            <section className={`sidebar ${isSidebarOpen
+                ? "open"
+                : "closed"
+                }`}>
+                <button onClick={createNewChat}>
+                    <img src="/src/assets/logo2.webp" alt="NexaMind-AI logo" className="logo"></img>
+                    NexaMind-AI
+                    <span><i className="fa-regular fa-pen-to-square"></i></span>
+                </button>
 
-            <ul className="history">
+                <ul className="history">
 
-                <p style={{
-                    fontWeight:
-                        "bold",
+                    <p style={{
+                        fontWeight:
+                            "bold",
 
-                    marginTop:
-                        "1rem"
-                }}>
-                    <i className="fa-regular fa-folder"></i>Folders
-                </p>
+                        marginTop:
+                            "1rem"
+                    }}>
+                        <i class="fa-regular fa-folder-open"></i>    Spaces
+                    </p>
 
-                {
-                    Object.entries(
-                        groupedThreads
-                    ).map(
-                        ([level, subjects]) => (
-
-                            <div
-                                key={level}
-                                className="folderSection"
-                            >
+                    {
+                        Object.entries(
+                            groupedThreads
+                        ).map(
+                            ([level, subjects]) => (
 
                                 <div
-                                    className="folderHeader"
+                                    key={level}
+                                    className="folderSection"
+                                >
+
+                                    <div
+                                        className="folderHeader"
+
+                                        onClick={() =>
+                                            toggleFolder(
+                                                level
+                                            )
+                                        }
+                                    >
+
+                                        <span>
+                                            {
+                                                openFolders[
+                                                    level
+                                                ]
+
+                                                    ? <i className="fa-solid fa-angle-down"></i>
+
+                                                    : <i className="fa-solid fa-angle-right"></i>
+                                            }
+                                        </span>
+
+                                        <h3>
+                                            {level}
+                                        </h3>
+
+                                    </div>
+
+                                    {
+                                        openFolders[
+                                        level
+                                        ] && (
+
+                                            <div
+                                                className="folderContent"
+                                            >
+
+                                                {
+                                                    Object.entries(
+                                                        subjects
+                                                    ).map(
+                                                        ([
+                                                            subject,
+                                                            threads
+                                                        ]) => (
+
+                                                            <div
+                                                                key={subject}
+                                                                className="subjectSection"
+                                                            >
+
+                                                                <div
+                                                                    className="subjectHeader"
+
+                                                                    onClick={() =>
+                                                                        toggleSubject(
+                                                                            `${level}-${subject}`
+                                                                        )
+                                                                    }
+                                                                >
+
+                                                                    <span>
+                                                                        {
+                                                                            openSubjects[
+                                                                                `${level}-${subject}`
+                                                                            ]
+
+                                                                                ? <i className="fa-solid fa-angle-down"></i>
+                                                                                : <i className="fa-solid fa-angle-right"></i>
+                                                                        }
+                                                                    </span>
+
+                                                                    <h4>
+                                                                        {subject}
+                                                                    </h4>
+
+                                                                </div>
+
+                                                                {
+                                                                    openSubjects[
+                                                                    `${level}-${subject}`
+                                                                    ] && (
+
+                                                                        <div
+                                                                            className="subjectContent"
+                                                                        >
+
+                                                                            {
+                                                                                threads.map(
+                                                                                    (
+                                                                                        thread
+                                                                                    ) => (
+
+                                                                                        <li
+                                                                                            key={
+                                                                                                thread.threadID
+                                                                                            }
+
+                                                                                            onClick={() =>
+                                                                                                changeThread(
+                                                                                                    thread.threadID
+                                                                                                )
+                                                                                            }
+                                                                                        >
+
+                                                                                            {
+                                                                                                (
+                                                                                                    thread.title
+                                                                                                    || ""
+                                                                                                )
+                                                                                                    .trim()
+                                                                                                    .length > 22
+
+                                                                                                    ?
+
+                                                                                                    thread.title
+                                                                                                        .trim()
+                                                                                                        .slice(
+                                                                                                            0,
+                                                                                                            22
+                                                                                                        ) + "..."
+
+                                                                                                    :
+
+                                                                                                    thread.title
+                                                                                            }
+
+                                                                                            <i
+                                                                                                className=
+                                                                                                "fa-solid fa-ellipsis"
+
+                                                                                                onClick={
+                                                                                                    (e) => {
+
+                                                                                                        e.stopPropagation();
+
+                                                                                                        handleDropdown(
+                                                                                                            `subject-${thread.threadID}`
+                                                                                                        );
+                                                                                                    }}
+                                                                                            >
+                                                                                            </i>
+
+                                                                                            {
+                                                                                                openThreadId ===
+                                                                                                `subject-${thread.threadID}` && (
+
+                                                                                                    <div
+                                                                                                        className=
+                                                                                                        "dropDown"
+
+                                                                                                        onClick={
+                                                                                                            (e) =>
+                                                                                                                e.stopPropagation()
+                                                                                                        }
+                                                                                                    >
+
+                                                                                                        <div
+                                                                                                            className=
+                                                                                                            "dropDownItem"
+
+                                                                                                            onClick={() =>
+                                                                                                                shareThread(
+                                                                                                                    thread.threadID
+                                                                                                                )
+                                                                                                            }
+                                                                                                        >
+
+                                                                                                            <i
+                                                                                                                className=
+                                                                                                                "fa-solid fa-arrow-up-from-bracket"
+                                                                                                            >
+                                                                                                            </i>
+
+                                                                                                            <span>
+                                                                                                                Share
+                                                                                                            </span>
+
+                                                                                                        </div>
+
+                                                                                                        <div
+                                                                                                            className=
+                                                                                                            "dropDownItem"
+
+                                                                                                            onClick={() =>
+                                                                                                                deleteThread(
+                                                                                                                    thread.threadID
+                                                                                                                )
+                                                                                                            }
+                                                                                                        >
+
+                                                                                                            <i
+                                                                                                                className=
+                                                                                                                "fa-regular fa-trash-can delete"
+                                                                                                            >
+                                                                                                            </i>
+
+                                                                                                            <span
+                                                                                                                className=
+                                                                                                                "delete"
+                                                                                                            >
+                                                                                                                Delete
+                                                                                                            </span>
+
+                                                                                                        </div>
+
+                                                                                                    </div>
+                                                                                                )
+                                                                                            }
+
+                                                                                        </li>
+                                                                                    ))
+                                                                            }
+
+                                                                        </div>
+                                                                    )
+                                                                }
+
+                                                            </div>
+                                                        ))
+                                                }
+
+                                            </div>
+                                        )
+                                    }
+
+                                </div>
+                            ))
+                    }
+
+                    <p style={{ fontWeight: "bold" }}>Recent Chats</p>
+                    {
+                        allThreads?.map(
+                            (thread, idx) => (
+
+                                <li
+                                    key={
+                                        thread.threadID
+                                    }
 
                                     onClick={() =>
-                                        toggleFolder(
-                                            level
+                                        changeThread(
+                                            thread.threadID
                                         )
                                     }
                                 >
 
-                                    <span>
-                                        {
-                                            openFolders[
-                                                level
-                                            ]
-
-                                                ? <i className="fa-solid fa-angle-down"></i>
-
-                                                : <i className="fa-solid fa-angle-right"></i>
-                                        }
-                                    </span>
-
-                                    <h3>
-                                        {level}
-                                    </h3>
-
-                                </div>
-
-                                {
-                                    openFolders[
-                                    level
-                                    ] && (
-
-                                        <div
-                                            className="folderContent"
-                                        >
-
-                                            {
-                                                Object.entries(
-                                                    subjects
-                                                ).map(
-                                                    ([
-                                                        subject,
-                                                        threads
-                                                    ]) => (
-
-                                                        <div
-                                                            key={subject}
-                                                            className="subjectSection"
-                                                        >
-
-                                                            <div
-                                                                className="subjectHeader"
-
-                                                                onClick={() =>
-                                                                    toggleSubject(
-                                                                        `${level}-${subject}`
-                                                                    )
-                                                                }
-                                                            >
-
-                                                                <span>
-                                                                    {
-                                                                        openSubjects[
-                                                                            `${level}-${subject}`
-                                                                        ]
-
-                                                                            ? <i className="fa-solid fa-angle-down"></i>
-                                                                            : <i className="fa-solid fa-angle-right"></i>
-                                                                    }
-                                                                </span>
-
-                                                                <h4>
-                                                                    {subject}
-                                                                </h4>
-
-                                                            </div>
-
-                                                            {
-                                                                openSubjects[
-                                                                `${level}-${subject}`
-                                                                ] && (
-
-                                                                    <div
-                                                                        className="subjectContent"
-                                                                    >
-
-                                                                        {
-                                                                            threads.map(
-                                                                                (
-                                                                                    thread
-                                                                                ) => (
-
-                                                                                    <li
-                                                                                        key={
-                                                                                            thread.threadID
-                                                                                        }
-
-                                                                                        onClick={() =>
-                                                                                            changeThread(
-                                                                                                thread.threadID
-                                                                                            )
-                                                                                        }
-                                                                                    >
-
-                                                                                        {
-                                                                                            (
-                                                                                                thread.title
-                                                                                                || ""
-                                                                                            )
-                                                                                                .trim()
-                                                                                                .length > 22
-
-                                                                                                ?
-
-                                                                                                thread.title
-                                                                                                    .trim()
-                                                                                                    .slice(
-                                                                                                        0,
-                                                                                                        22
-                                                                                                    ) + "..."
-
-                                                                                                :
-
-                                                                                                thread.title
-                                                                                        }
-
-                                                                                        <i
-                                                                                            className=
-                                                                                            "fa-solid fa-ellipsis"
-
-                                                                                            onClick={
-                                                                                                (e) => {
-
-                                                                                                    e.stopPropagation();
-
-                                                                                                    handleDropdown(
-                                                                                                         `subject-${thread.threadID}`
-                                                                                                    );
-                                                                                                }}
-                                                                                        >
-                                                                                        </i>
-
-                                                                                        {
-                                                                                            openThreadId ===
-                                                                                            `subject-${thread.threadID}` && (
-
-                                                                                                <div
-                                                                                                    className=
-                                                                                                    "dropDown"
-
-                                                                                                    onClick={
-                                                                                                        (e) =>
-                                                                                                            e.stopPropagation()
-                                                                                                    }
-                                                                                                >
-
-                                                                                                    <div
-                                                                                                        className=
-                                                                                                        "dropDownItem"
-
-                                                                                                        onClick={() =>
-                                                                                                            shareThread(
-                                                                                                                thread.threadID
-                                                                                                            )
-                                                                                                        }
-                                                                                                    >
-
-                                                                                                        <i
-                                                                                                            className=
-                                                                                                            "fa-solid fa-arrow-up-from-bracket"
-                                                                                                        >
-                                                                                                        </i>
-
-                                                                                                        <span>
-                                                                                                            Share
-                                                                                                        </span>
-
-                                                                                                    </div>
-
-                                                                                                    <div
-                                                                                                        className=
-                                                                                                        "dropDownItem"
-
-                                                                                                        onClick={() =>
-                                                                                                            deleteThread(
-                                                                                                                thread.threadID
-                                                                                                            )
-                                                                                                        }
-                                                                                                    >
-
-                                                                                                        <i
-                                                                                                            className=
-                                                                                                            "fa-regular fa-trash-can delete"
-                                                                                                        >
-                                                                                                        </i>
-
-                                                                                                        <span
-                                                                                                            className=
-                                                                                                            "delete"
-                                                                                                        >
-                                                                                                            Delete
-                                                                                                        </span>
-
-                                                                                                    </div>
-
-                                                                                                </div>
-                                                                                            )
-                                                                                        }
-
-                                                                                    </li>
-                                                                                ))
-                                                                        }
-
-                                                                    </div>
-                                                                )
-                                                            }
-
-                                                        </div>
-                                                    ))
-                                            }
-
-                                        </div>
-                                    )
-                                }
-
-                            </div>
-                        ))
-                }
-
-                <p style={{ fontWeight: "bold" }}>Recent Chats</p>
-                {
-                    allThreads?.map(
-                        (thread, idx) => (
-
-                            <li
-                                key={
-                                    thread.threadID
-                                }
-
-                                onClick={() =>
-                                    changeThread(
-                                        thread.threadID
-                                    )
-                                }
-                            >
-
-                                {
-                                    (
-                                        thread.title
-                                        || ""
-                                    )
-                                        .trim()
-                                        .length > 22
-
-                                        ?
-
-                                        thread.title
+                                    {
+                                        (
+                                            thread.title
+                                            || ""
+                                        )
                                             .trim()
-                                            .slice(
-                                                0,
-                                                22
-                                            ) + "..."
+                                            .length > 22
 
-                                        :
+                                            ?
 
-                                        thread.title
-                                }
+                                            thread.title
+                                                .trim()
+                                                .slice(
+                                                    0,
+                                                    22
+                                                ) + "..."
 
-                                <i
-                                    className=
-                                    "fa-solid fa-ellipsis"
+                                            :
 
-                                    onClick={
-                                        (e) => {
+                                            thread.title
+                                    }
 
-                                            e.stopPropagation();
+                                    <i
+                                        className=
+                                        "fa-solid fa-ellipsis"
 
-                                            handleDropdown(
-                                               `recent-${thread.threadID}`
-                                            );
-                                        }}
-                                >
-                                </i>
+                                        onClick={
+                                            (e) => {
 
-                                {
-                                    openThreadId
-                                    ===
-                                    `recent-${thread.threadID}` && (
+                                                e.stopPropagation();
 
-                                        <div
-                                            className=
-                                            "dropDown"
+                                                handleDropdown(
+                                                    `recent-${thread.threadID}`
+                                                );
+                                            }}
+                                    >
+                                    </i>
 
-                                            onClick={
-                                                (e) =>
-                                                    e.stopPropagation()
-                                            }
-                                        >
+                                    {
+                                        openThreadId
+                                        ===
+                                        `recent-${thread.threadID}` && (
 
                                             <div
                                                 className=
-                                                "dropDownItem"
+                                                "dropDown"
 
-                                                onClick={() =>
-                                                    shareThread(
-                                                        thread.threadID
-                                                    )
+                                                onClick={
+                                                    (e) =>
+                                                        e.stopPropagation()
                                                 }
                                             >
 
-                                                <i
+                                                <div
                                                     className=
-                                                    "fa-solid fa-arrow-up-from-bracket"
-                                                >
-                                                </i>
+                                                    "dropDownItem"
 
-                                                <span>
-                                                    Share
-                                                </span>
+                                                    onClick={() =>
+                                                        shareThread(
+                                                            thread.threadID
+                                                        )
+                                                    }
+                                                >
+
+                                                    <i
+                                                        className=
+                                                        "fa-solid fa-arrow-up-from-bracket"
+                                                    >
+                                                    </i>
+
+                                                    <span>
+                                                        Share
+                                                    </span>
+
+                                                </div>
+
+                                                <div
+                                                    className=
+                                                    "dropDownItem"
+
+                                                    onClick={() =>
+                                                        deleteThread(
+                                                            thread.threadID
+                                                        )
+                                                    }
+                                                >
+
+                                                    <i
+                                                        className=
+                                                        "fa-regular fa-trash-can delete"
+                                                    >
+                                                    </i>
+
+                                                    <span
+                                                        className=
+                                                        "delete"
+                                                    >
+                                                        Delete
+                                                    </span>
+
+                                                </div>
 
                                             </div>
-
-                                            <div
-                                                className=
-                                                "dropDownItem"
-
-                                                onClick={() =>
-                                                    deleteThread(
-                                                        thread.threadID
-                                                    )
-                                                }
-                                            >
-
-                                                <i
-                                                    className=
-                                                    "fa-regular fa-trash-can delete"
-                                                >
-                                                </i>
-
-                                                <span
-                                                    className=
-                                                    "delete"
-                                                >
-                                                    Delete
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-                                    )}
-                            </li>
-                        ))
-                }
+                                        )}
+                                </li>
+                            ))
+                    }
 
 
 
-            </ul>
+                </ul>
+
+                {!user && (
+                    <div className="login-signin">
+                        <p>
+                            Please{" "}
+                            <span onClick={() => setShowAuth(true)} style={{ fontWeight: "bold", cursor: "pointer"}}>
+                                Login
+                            </span>{" "}
+                            or{" "}
+                            <span onClick={() => setShowAuth(true)} style={{ fontWeight: "bold", cursor: "pointer"}}>
+                                Sign Up
+                            </span>
+                            <br />
+                            to save your chats and access them from anywhere.
+                        </p>
+                    </div>
+                )}
 
 
-
-            <div className="sign">
-                <p>Made with <i className="fa-solid fa-heart" style={{ "color": "red" }}></i> </p>
-            </div>
-        </section>
+                <div className="sign">
+                    <p> Built for ideas. Powered by AI.</p>
+                </div>
+            </section>
+            {showAuth && (
+                <AuthModal
+                    setShowAuth={setShowAuth}
+                    setUser={setUser}
+                />
+            )}
+        </>
     )
 }
 

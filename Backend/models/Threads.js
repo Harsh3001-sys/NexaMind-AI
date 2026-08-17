@@ -50,13 +50,13 @@ const ThreadSchema = new mongoose.Schema({
         default: null
     },
 
-    educationLevel: {
+    category: {
         type: String,
         enum: [
-            "BTech",
-            "11-12",
-            "School",
-            "General"
+            "Work",
+            "Study",
+            "Projects",
+            "Personal"
         ],
         default: "General"
     },

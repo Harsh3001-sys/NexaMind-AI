@@ -137,8 +137,8 @@ router.post('/chat', authMiddleware, async (req, res) => {
                 userId,
                 threadID,
                 title: generatedTitle,
-                educationLevel:
-                    category.educationLevel,
+                category:
+                    category.category,
                 subject:
                     category.subject,
                 messages: [{ role: 'user', content: messages }],
