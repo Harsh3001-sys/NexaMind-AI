@@ -265,4 +265,12 @@ router.get('/share/:shareId', async (req, res) => {
             thread.messages
     });
 });
+
+router.get('/load-test', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "NexaMind backend is responding",
+        server: process.env.SERVER_NAME || "backend"
+    });
+});
 export default router;

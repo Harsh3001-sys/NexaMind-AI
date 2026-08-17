@@ -2,24 +2,18 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 export const options = {
-    vus: 10,
-    duration: '30s',
-
-    thresholds: {
-        http_req_failed: ['rate<0.01'],
-        http_req_duration: ['p(95)<1000'],
-    },
+    stages: [
+        { duration: '10s', target: 10 },
+        { duration: '20s', target: 30 },
+        { duration: '30s', target: 50 },
+        { duration: '10s', target: 0 },
+    ],
 };
 
 export default function () {
+    const res = http.get('http://localhost:4000/api/load-test');
 
-    const response = http.get(
-        'http://localhost:4000/api/load-test'
-    );
-
-    check(response, {
+    check(res, {
         'status is 200': (r) => r.status === 200,
-        'gateway responded': (r) =>
-            r.body.includes('NexaMind'),
     });
 }

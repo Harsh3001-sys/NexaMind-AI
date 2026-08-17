@@ -1,3 +1,5 @@
+const requestTimestamps = [];
+
 const metrics = {
     requests: {
         total: 0,
@@ -41,8 +43,23 @@ const recordRequest = (backend) => {
             failed: 0
         };
     }
-
+    requestTimestamps.push(Date.now());
     metrics.backends[backend].requests++;
+};
+
+const getRequestRate = () => {
+
+    const now = Date.now();
+    const windowMs = 10000; // 10 seconds
+
+    while (
+        requestTimestamps.length > 0 &&
+        now - requestTimestamps[0] > windowMs
+    ) {
+        requestTimestamps.shift();
+    }
+
+    return requestTimestamps.length / 10;
 };
 
 
@@ -198,7 +215,10 @@ const getMetrics = () => {
                     (
                         metrics.requests.successful /
                         metrics.requests.total
-                    ) * 100
+                    ) * 100,
+
+            requestRate: getRequestRate()
+            
         },
 
         backends:

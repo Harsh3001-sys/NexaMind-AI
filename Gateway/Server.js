@@ -1,6 +1,7 @@
 import express from "express";
 import axios from "axios";
 import dns from "dns";
+import { createClient } from "redis";
 
 import {
     recordRequest,
@@ -54,6 +55,18 @@ app.use((req, res, next) => {
 
     next();
 });
+
+const redisClient = createClient({
+    url: "redis://redis:6379"
+});
+
+redisClient.on("error", (err) => {
+    console.error("Redis Client Error:", err);
+});
+
+await redisClient.connect();
+
+console.log("🟢 Gateway connected to Redis");
 
 
 // ===============================
@@ -390,6 +403,15 @@ const proxyRequest = async (req, res) => {
     try {
         backend = getNextHealthyBackend();
         recordRequest(backend);
+        const metrics = getMetrics();
+
+await redisClient.set(
+    "autoscale:requestRate",
+    metrics.requests.requestRate,
+    {
+        EX: 15
+    }
+);
         console.log(
             `Routing ${req.method} ${req.originalUrl} → ${backend}`
         );
@@ -563,11 +585,19 @@ app.get(
     }
 );
 
-app.get("/metrics", (req, res) => {
+app.get("/metrics", async (req, res) => {
 
-    res.json(
-        getMetrics()
+    const metrics = getMetrics();
+
+    await redisClient.set(
+        "autoscale:requestRate",
+        metrics.requests.requestRate,
+        {
+            EX: 15
+        }
     );
+
+    res.json(metrics);
 
 });
 
