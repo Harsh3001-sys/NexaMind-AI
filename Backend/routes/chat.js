@@ -231,7 +231,7 @@ router.post(
 
             shareLink:
 
-                `http://localhost:8080/share/${thread.shareId}`
+                `${process.env.FRONTEND_URL}/share/${thread.shareId}`
 
         });
     });

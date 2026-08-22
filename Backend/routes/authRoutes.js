@@ -53,7 +53,7 @@ router.get(
       );
 
     res.redirect(
-      `http://localhost:8080/?token=${token}&user=${encodedUser}`
+      `${process.env.FRONTEND_URL}/?token=${token}&user=${encodedUser}`
     );
   }
 );
