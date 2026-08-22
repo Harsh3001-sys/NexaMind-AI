@@ -15,7 +15,7 @@ console.log("🟢 Autoscaler connected to Redis");
 const MIN_BACKENDS = 2;
 const MAX_BACKENDS = 4;
 
-const COMPOSE_FILE = "/project/docker-compose.yml";
+const COMPOSE_FILE = "/project/docker-compose.prod.yml";
 const PROJECT_NAME = "nexamind-ai";
 const CHECK_INTERVAL = 5000;
 
@@ -72,8 +72,6 @@ const scaleBackend = async (target) => {
 
     });
 
-    // IMPORTANT:
-    // Do not immediately assume scaling succeeded.
     await waitForBackendCount(target);
 };
 
@@ -146,7 +144,6 @@ const getBackendCount = async () => {
                         console.error(stderr);
                     }
 
-                    // Do NOT treat an error as 0 backends
                     resolve(null);
                     return;
                 }
@@ -241,11 +238,27 @@ const checkLoad = async () => {
         return;
     }
 
+
     try {
 
-        // =========================
-        // SCALE UP
-        // =========================
+        if (backendCount < MIN_BACKENDS) {
+
+            console.log(
+                `⚠️ Backend count ${backendCount} is below minimum ${MIN_BACKENDS}`
+            );
+
+            scalingInProgress = true;
+
+            await scaleBackend(MIN_BACKENDS);
+
+            console.log(
+                `✅ Minimum backend requirement restored: ${MIN_BACKENDS} backends`
+            );
+
+            lowLoadSince = null;
+
+            return;
+        }
 
         if (
             backendCount === 2 &&
@@ -289,9 +302,6 @@ const checkLoad = async () => {
 
         }
 
-        // =========================
-        // SCALE DOWN
-        // =========================
 
         else if (
             backendCount > MIN_BACKENDS &&
@@ -314,8 +324,7 @@ const checkLoad = async () => {
             console.log(
                 `⏳ Low load duration: ${Math.floor(
                     lowLoadDuration / 1000
-                )}s / ${
-                    SCALE_DOWN_STABLE_TIME / 1000
+                )}s / ${SCALE_DOWN_STABLE_TIME / 1000
                 }s`
             );
 

@@ -34,7 +34,7 @@ function SharePage() {
                 const response =
                 await fetch(
 
-`http://localhost:4000/api/share/${shareId}`
+`${import.meta.env.VITE_API_URL}/api/share/${shareId}`
 
                 );
 

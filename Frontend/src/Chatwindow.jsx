@@ -116,7 +116,7 @@ function Chatwindow({
 
             const response =
                 await fetch(
-                    "http://localhost:4000/api/chat",
+                    `${import.meta.env.VITE_API_URL}/api/chat`,
                     options
                 );
 
@@ -191,7 +191,7 @@ function Chatwindow({
 
             const response =
                 await fetch(
-                    "http://localhost:4000/auth/logout",
+                    `${import.meta.env.VITE_API_URL}/auth/logout`,
                     {
                         method: "POST",
                     }

@@ -35,7 +35,7 @@ function Sidebar({
 
         if (!token) return;
         try {
-            const response = await fetch("http://localhost:4000/api/thread", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread`, {
                 headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -128,7 +128,7 @@ function Sidebar({
         setCurrThreadId(newThreadId);
 
         try {
-            const response = await fetch(`http://localhost:4000/api/thread/${newThreadId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${newThreadId}`, {
                 headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -164,7 +164,7 @@ function Sidebar({
                 "token"
             );
         try {
-            const response = await fetch(`http://localhost:4000/api/thread/${threadId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${threadId}`, {
                 method: "DELETE", headers: {
                     Authorization:
                         `Bearer ${token}`
@@ -196,7 +196,7 @@ function Sidebar({
             const response =
                 await fetch(
 
-                    `http://localhost:4000/api/thread/share/${threadId}`,
+                    `${import.meta.env.VITE_API_URL}/api/thread/share/${threadId}`,
 
                     {
                         method:

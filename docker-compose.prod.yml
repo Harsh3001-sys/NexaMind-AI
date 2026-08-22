@@ -1,0 +1,96 @@
+name: nexamind-ai
+
+services:
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.prod
+
+    env_file:
+      - ./Backend/.env
+
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+
+    expose:
+      - "5000"
+
+    restart: unless-stopped
+
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile.prod
+
+    container_name: nexamind-gateway
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      NODE_ENV: production
+      FRONTEND_URL: ${FRONTEND_URL}
+
+    depends_on:
+      - redis
+      - backend
+
+    restart: unless-stopped
+
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: nexamind-redis
+
+    volumes:
+      - redis_data:/data
+
+    command: redis-server --appendonly yes
+
+    restart: unless-stopped
+
+
+  autoscaler:
+    build:
+      context: ./Autoscaler
+      dockerfile: Dockerfile.prod
+
+    container_name: nexamind-autoscaler
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/project
+
+    depends_on:
+      - redis
+
+    environment:
+      - NODE_ENV=production
+
+    restart: unless-stopped
+
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+
+    container_name: nexamind-frontend
+
+    ports:
+      - "8080:80"
+
+    depends_on:
+      - gateway
+
+    restart: unless-stopped
+
+
+volumes:
+  redis_data:

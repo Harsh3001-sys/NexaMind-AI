@@ -47,7 +47,7 @@ function AuthModal({ setShowAuth, setUser }) {
           };
 
       const response = await fetch(
-        `http://localhost:4000/auth/${endpoint}`,
+        `${import.meta.env.VITE_API_URL}/auth/${endpoint}`,
         {
           method: "POST",
           headers: {
@@ -102,7 +102,7 @@ function AuthModal({ setShowAuth, setUser }) {
 
   const handleGoogleLogin = () => {
     window.location.href =
-      "http://localhost:4000/auth/google";
+      `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   return (

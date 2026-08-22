@@ -1,11 +1,3 @@
-/* .chats {
-    max-width: 43rem;
-    overflow-y: scroll;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding: 2rem;
-} */
-
 .chats {
     width: min(100%, 48rem);
     flex: 1;
@@ -26,18 +18,6 @@
 .chats::-webkit-scrollbar {
     display: none;
 }
-
-/* .welcomeTxt {
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    pointer-events: none;
-    z-index: 1;
-} */
 
 .welcomeTxt {
     display: flex;
