@@ -322,11 +322,6 @@ const updateHealthyPool = async () => {
 
         currentBackend = 0;
     }
-
-    console.log(
-        "Healthy backend pool:",
-        healthyBackends
-    );
 };
 
 
@@ -380,9 +375,6 @@ await redisClient.set(
         EX: 15
     }
 );
-        console.log(
-            `Routing ${req.method} ${req.originalUrl} → ${backend}`
-        );
         const response = await axios({
             method: req.method,
 
@@ -566,11 +558,6 @@ app.use(
 const startGateway = async () => {
 
     BACKENDS = await discoverBackends();
-
-    console.log(
-        "🔍 Initial backend discovery:",
-        BACKENDS
-    );
 
     BACKENDS.forEach((backend) => {
 

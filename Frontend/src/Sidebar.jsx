@@ -49,7 +49,6 @@ function Sidebar({
                 subject:
                     thread.subject
             }));
-            console.log(filterData);
             setAllThreads(filterData);
         } catch (e) {
             console.log(e);
@@ -135,7 +134,6 @@ function Sidebar({
                 }
             });
             const res = await response.json();
-            console.log(res);
             setPrevChats(res);
             setNewChats(false);
             if (

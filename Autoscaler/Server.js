@@ -10,8 +10,6 @@ redisClient.on("error", (error) => {
 
 await redisClient.connect();
 
-console.log("Autoscaler connected to Redis");
-
 const MIN_BACKENDS = 2;
 const MAX_BACKENDS = 4;
 
@@ -28,11 +26,6 @@ let lowLoadSince = null;
 
 let scalingInProgress = false;
 const scaleBackend = async (target) => {
-
-    console.log(
-        `Scaling backend to ${target} replicas...`
-    );
-
     const { exec } = await import("node:child_process");
 
     await new Promise((resolve, reject) => {
@@ -56,9 +49,6 @@ const scaleBackend = async (target) => {
                     return;
                 }
 
-                console.log(
-                    "Docker Compose scaling command completed"
-                );
 
                 console.log(stdout);
 
@@ -77,10 +67,6 @@ const scaleBackend = async (target) => {
 
 
 const scaleDownBackend = async (target) => {
-
-    console.log(
-        `Scaling backend down to ${target} replicas...`
-    );
 
     const { exec } = await import("node:child_process");
 
@@ -104,10 +90,6 @@ const scaleDownBackend = async (target) => {
                     reject(error);
                     return;
                 }
-
-                console.log(
-                    "Docker Compose scale-down completed"
-                );
 
                 console.log(stdout);
 
@@ -153,11 +135,6 @@ const getBackendCount = async () => {
                     .split("\n")
                     .filter(Boolean);
 
-                console.log(
-                    "Running backend containers:",
-                    containers
-                );
-
                 resolve(containers.length);
             }
         );
@@ -166,24 +143,11 @@ const getBackendCount = async () => {
 
 const waitForBackendCount = async (target) => {
 
-    console.log(
-        `Waiting for ${target} backend replicas...`
-    );
-
     for (let i = 0; i < 15; i++) {
 
         const count = await getBackendCount();
 
-        console.log(
-            `Backend check: ${count}/${target}`
-        );
-
         if (count === target) {
-
-            console.log(
-                `${target} backend replicas are running`
-            );
-
             return true;
         }
 
@@ -209,32 +173,15 @@ const checkLoad = async () => {
     const rate =
         Number(requestRate) || 0;
 
-    console.log(
-        `Current request rate: ${rate} req/sec`
-    );
-
     const backendCount =
         await getBackendCount();
 
-    console.log(
-        `Current backend count: ${backendCount}`
-    );
 
     if (backendCount === null) {
-
-        console.log(
-            "Could not determine backend count. Skipping scaling decision."
-        );
-
         return;
     }
 
     if (scalingInProgress) {
-
-        console.log(
-            "Scaling already in progress..."
-        );
-
         return;
     }
 

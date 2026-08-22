@@ -132,7 +132,6 @@ router.post('/chat', authMiddleware, async (req, res) => {
                 await categorizeChat(
                     messages
                 );
-            console.log(generatedTitle);
             thread = new Thread({
                 userId,
                 threadID,

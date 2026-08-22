@@ -40,7 +40,6 @@ function SharePage() {
 
                 const res =
                 await response.json();
-                console.log(res);
 
                 setMessages(
                     res.messages

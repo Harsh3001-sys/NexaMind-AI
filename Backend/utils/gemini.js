@@ -27,7 +27,6 @@ const getResponse = async (userMessage, history = []) => {
 
     if (data.candidates && data.candidates[0].content) {
       const assistantText = data.candidates[0].content.parts[0].text;
-      console.log("Assistant:", assistantText);
       return assistantText;
     } else {
       console.error("Unexpected API response structure:", data);

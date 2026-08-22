@@ -87,13 +87,6 @@ function Chatwindow({
 
         setLoading(true);
 
-        console.log(
-            "message:",
-            prompt,
-            "threadid:",
-            currThreadId
-        );
-
         const options = {
             method: "POST",
 
@@ -140,8 +133,6 @@ function Chatwindow({
 
             const res =
                 await response.json();
-
-            console.log(res);
 
             setReply(res.reply);
             setRefreshThreads(
