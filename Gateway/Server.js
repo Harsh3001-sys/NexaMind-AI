@@ -18,7 +18,7 @@ import {
 
 const app = express();
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 
@@ -57,7 +57,7 @@ app.use((req, res, next) => {
 });
 
 const redisClient = createClient({
-    url: "redis://redis:6379"
+    url: process.env.REDIS_URL || "redis://redis:6379"
 });
 
 redisClient.on("error", (err) => {
