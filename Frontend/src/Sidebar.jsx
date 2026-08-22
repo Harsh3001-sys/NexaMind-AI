@@ -4,7 +4,7 @@ import { Mycontext } from "./Mycontext.jsx";
 import { v1 as uuidv1 } from "uuid";
 import { toast } from "react-toastify";
 import AuthModal from "./AuthModal.jsx";
-
+import logo from "./assets/logo2.webp";
 function Sidebar({
     isSidebarOpen, setIsSidebarOpen
 }) {
@@ -259,7 +259,7 @@ function Sidebar({
                 : "closed"
                 }`}>
                 <button onClick={createNewChat}>
-                    <img src="/src/assets/logo2.webp" alt="NexaMind-AI logo" className="logo"></img>
+                    <img src={logo} alt="NexaMind-AI logo" className="logo"></img>
                     NexaMind-AI
                     <span><i className="fa-regular fa-pen-to-square"></i></span>
                 </button>

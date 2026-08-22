@@ -22,11 +22,6 @@ const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 
-
-// ===============================
-// CORS
-// ===============================
-
 app.use((req, res, next) => {
 
     res.header(
@@ -66,7 +61,7 @@ redisClient.on("error", (err) => {
 
 await redisClient.connect();
 
-console.log("🟢 Gateway connected to Redis");
+console.log("Gateway connected to Redis");
 
 
 // ===============================
@@ -90,7 +85,7 @@ const discoverBackends = async () => {
 
     } catch (error) {
         console.error(
-            "❌ Backend discovery failed:",
+            "Backend discovery failed:",
             error.message
         );
 
@@ -105,15 +100,6 @@ let currentBackend = 0;
 
 const circuitState = {};
 
-// BACKENDS.forEach((backend) => {
-//     circuitState[backend] = {
-//         state: "CLOSED",
-//         failures: 0,
-//         openedAt: null,
-//         testInProgress: false
-//     };
-// });
-
 const failureThreshold = 3;
 const resetTimeout = 10000; // 10 seconds
 
@@ -124,8 +110,6 @@ function recordFailure(backend) {
 
     circuit.testInProgress = false;
 
-    // If the test request failed,
-    // immediately reopen the circuit.
     if (
         circuit.state === "HALF_OPEN"
     ) {
@@ -136,7 +120,7 @@ function recordFailure(backend) {
         recordCircuitHalfOpen();
 
         console.log(
-            `🔴 HALF-OPEN test failed. Circuit OPEN for ${backend}`
+            `HALF-OPEN test failed. Circuit OPEN for ${backend}`
         );
 
         return;
@@ -145,7 +129,7 @@ function recordFailure(backend) {
     circuit.failures++;
 
     console.log(
-        `⚠️ ${backend} failure ${circuit.failures}/${failureThreshold}`
+        `${backend} failure ${circuit.failures}/${failureThreshold}`
     );
 
     if (
@@ -159,7 +143,7 @@ function recordFailure(backend) {
         recordCircuitOpen();
 
         console.log(
-            `🔴 Circuit OPEN for ${backend}`
+            `Circuit OPEN for ${backend}`
         );
     }
 }
@@ -183,7 +167,7 @@ function recordSuccess(backend) {
         recordCircuitClose();
 
         console.log(
-            `🟢 Circuit CLOSED for ${backend}`
+            `Circuit CLOSED for ${backend}`
         );
     }
 }
@@ -192,12 +176,10 @@ function isCircuitOpen(backend) {
 
     const circuit = circuitState[backend];
 
-    // Normal state
     if (circuit.state === "CLOSED") {
         return false;
     }
 
-    // Circuit is OPEN
     if (circuit.state === "OPEN") {
 
         const elapsed =
@@ -214,7 +196,7 @@ function isCircuitOpen(backend) {
         circuit.testInProgress = false;
 
         console.log(
-            `🟡 Circuit HALF-OPEN for ${backend}`
+            `Circuit HALF-OPEN for ${backend}`
         );
     }
 
@@ -231,7 +213,7 @@ function isCircuitOpen(backend) {
         circuit.testInProgress = true;
 
         console.log(
-            `🧪 Allowing test request to ${backend}`
+            `Allowing test request to ${backend}`
         );
 
         return false;
@@ -251,12 +233,6 @@ app.get("/circuit-status", (req, res) => {
 
 });
 
-
-// ===============================
-// SELECT NEXT BACKEND
-// ===============================
-
-
 const updateHealthyPool = async () => {
     const previousHealthyBackends = [...healthyBackends];
     const newHealthyBackends = [];
@@ -268,7 +244,7 @@ const updateHealthyPool = async () => {
         if (isCircuitOpen(backend)) {
 
             console.log(
-                `🔴 Skipping health check for ${backend} - circuit OPEN`
+                `Skipping health check for ${backend} - circuit OPEN`
             );
 
             continue;
@@ -286,8 +262,6 @@ const updateHealthyPool = async () => {
 
             if (response.status === 200) {
 
-                // If this was a HALF_OPEN test,
-                // successful health check closes it.
                 if (
                     circuitState[backend].state ===
                     "HALF_OPEN"
@@ -304,11 +278,9 @@ const updateHealthyPool = async () => {
         } catch (error) {
 
             console.log(
-                `❌ Backend unhealthy: ${backend}`
+                `Backend unhealthy: ${backend}`
             );
             recordHealthCheckFailure();
-            // Health check itself failed,
-            // so tell the circuit breaker.
             recordFailure(backend);
         }
     }
@@ -330,7 +302,7 @@ const updateHealthyPool = async () => {
         recordFailover();
 
         console.log(
-            "🔄 Failover detected. Traffic redirected to healthy backend(s)."
+            "Failover detected. Traffic redirected to healthy backend(s)."
         );
     }
 
@@ -352,7 +324,7 @@ const updateHealthyPool = async () => {
     }
 
     console.log(
-        "🟢 Healthy backend pool:",
+        "Healthy backend pool:",
         healthyBackends
     );
 };
@@ -388,10 +360,6 @@ const getNextHealthyBackend = () => {
         "No backend available due to open circuits"
     );
 };
-
-// ===============================
-// GENERIC PROXY
-// ===============================
 
 const proxyRequest = async (req, res) => {
 
@@ -455,11 +423,6 @@ await redisClient.set(
             recordRequestSuccess(backend);
         }
 
-
-        // ===============================
-        // FORWARD REDIRECTS
-        // ===============================
-
         if (response.headers.location) {
 
             res.redirect(
@@ -470,11 +433,6 @@ await redisClient.set(
             return;
         }
 
-
-        // ===============================
-        // FORWARD COOKIES
-        // ===============================
-
         if (
             response.headers["set-cookie"]
         ) {
@@ -484,11 +442,6 @@ await redisClient.set(
                 response.headers["set-cookie"]
             );
         }
-
-
-        // ===============================
-        // SEND RESPONSE
-        // ===============================
 
         res.status(
             response.status
@@ -516,10 +469,6 @@ await redisClient.set(
 };
 
 
-// ===============================
-// HEALTH CHECK
-// ===============================
-
 app.get("/health", async (req, res) => {
     res.json({
         gateway: "healthy",
@@ -528,15 +477,6 @@ app.get("/health", async (req, res) => {
         healthyCount: healthyBackends.length
     });
 });
-
-
-// ===============================
-// TEST ROUTING
-// ===============================
-// IMPORTANT:
-// This MUST come BEFORE app.use("/api")
-// because /api/test-routing would otherwise
-// be caught by the generic proxy.
 
 app.get(
     "/api/test-routing",
@@ -601,11 +541,6 @@ app.get("/metrics", async (req, res) => {
 
 });
 
-
-// ===============================
-// API PROXY
-// ===============================
-
 app.use(
     "/api",
     async (req, res) => {
@@ -617,11 +552,6 @@ app.use(
     }
 );
 
-
-// ===============================
-// AUTH PROXY
-// ===============================
-
 app.use(
     "/auth",
     async (req, res) => {
@@ -632,15 +562,6 @@ app.use(
         );
     }
 );
-
-
-// ===============================
-// START SERVER
-// ===============================
-
-// ===============================
-// START SERVER
-// ===============================
 
 const startGateway = async () => {
 
@@ -666,7 +587,7 @@ const startGateway = async () => {
 
     app.listen(PORT, () => {
         console.log(
-            `🔥 NexaFlow Gateway running on port ${PORT}`
+            `NexaFlow Gateway running on port ${PORT}`
         );
     });
 
@@ -689,7 +610,7 @@ const startGateway = async () => {
                     };
 
                     console.log(
-                        `🆕 Circuit initialized for ${backend}`
+                        `Circuit initialized for ${backend}`
                     );
                 }
 

@@ -10,7 +10,7 @@ redisClient.on("error", (error) => {
 
 await redisClient.connect();
 
-console.log("🟢 Autoscaler connected to Redis");
+console.log("Autoscaler connected to Redis");
 
 const MIN_BACKENDS = 2;
 const MAX_BACKENDS = 4;
@@ -30,7 +30,7 @@ let scalingInProgress = false;
 const scaleBackend = async (target) => {
 
     console.log(
-        `🚀 Scaling backend to ${target} replicas...`
+        `Scaling backend to ${target} replicas...`
     );
 
     const { exec } = await import("node:child_process");
@@ -44,7 +44,7 @@ const scaleBackend = async (target) => {
                 if (error) {
 
                     console.error(
-                        "❌ Scaling failed:",
+                        "Scaling failed:",
                         error.message
                     );
 
@@ -57,7 +57,7 @@ const scaleBackend = async (target) => {
                 }
 
                 console.log(
-                    "✅ Docker Compose scaling command completed"
+                    "Docker Compose scaling command completed"
                 );
 
                 console.log(stdout);
@@ -79,7 +79,7 @@ const scaleBackend = async (target) => {
 const scaleDownBackend = async (target) => {
 
     console.log(
-        `📉 Scaling backend down to ${target} replicas...`
+        `Scaling backend down to ${target} replicas...`
     );
 
     const { exec } = await import("node:child_process");
@@ -93,7 +93,7 @@ const scaleDownBackend = async (target) => {
                 if (error) {
 
                     console.error(
-                        "❌ Scale-down failed:",
+                        "Scale-down failed:",
                         error.message
                     );
 
@@ -106,7 +106,7 @@ const scaleDownBackend = async (target) => {
                 }
 
                 console.log(
-                    "✅ Docker Compose scale-down completed"
+                    "Docker Compose scale-down completed"
                 );
 
                 console.log(stdout);
@@ -136,7 +136,7 @@ const getBackendCount = async () => {
                 if (error) {
 
                     console.error(
-                        "❌ Could not get backend count:",
+                        "Could not get backend count:",
                         error.message
                     );
 
@@ -154,7 +154,7 @@ const getBackendCount = async () => {
                     .filter(Boolean);
 
                 console.log(
-                    "🔎 Running backend containers:",
+                    "Running backend containers:",
                     containers
                 );
 
@@ -167,7 +167,7 @@ const getBackendCount = async () => {
 const waitForBackendCount = async (target) => {
 
     console.log(
-        `⏳ Waiting for ${target} backend replicas...`
+        `Waiting for ${target} backend replicas...`
     );
 
     for (let i = 0; i < 15; i++) {
@@ -175,13 +175,13 @@ const waitForBackendCount = async (target) => {
         const count = await getBackendCount();
 
         console.log(
-            `🔍 Backend check: ${count}/${target}`
+            `Backend check: ${count}/${target}`
         );
 
         if (count === target) {
 
             console.log(
-                `✅ ${target} backend replicas are running`
+                `${target} backend replicas are running`
             );
 
             return true;
@@ -193,7 +193,7 @@ const waitForBackendCount = async (target) => {
     }
 
     console.error(
-        `❌ Timed out waiting for ${target} backend replicas`
+        `Timed out waiting for ${target} backend replicas`
     );
 
     return false;
@@ -210,20 +210,20 @@ const checkLoad = async () => {
         Number(requestRate) || 0;
 
     console.log(
-        `📊 Current request rate: ${rate} req/sec`
+        `Current request rate: ${rate} req/sec`
     );
 
     const backendCount =
         await getBackendCount();
 
     console.log(
-        `📦 Current backend count: ${backendCount}`
+        `Current backend count: ${backendCount}`
     );
 
     if (backendCount === null) {
 
         console.log(
-            "⚠️ Could not determine backend count. Skipping scaling decision."
+            "Could not determine backend count. Skipping scaling decision."
         );
 
         return;
@@ -232,7 +232,7 @@ const checkLoad = async () => {
     if (scalingInProgress) {
 
         console.log(
-            "⏳ Scaling already in progress..."
+            "Scaling already in progress..."
         );
 
         return;
@@ -244,7 +244,7 @@ const checkLoad = async () => {
         if (backendCount < MIN_BACKENDS) {
 
             console.log(
-                `⚠️ Backend count ${backendCount} is below minimum ${MIN_BACKENDS}`
+                `Backend count ${backendCount} is below minimum ${MIN_BACKENDS}`
             );
 
             scalingInProgress = true;
@@ -252,7 +252,7 @@ const checkLoad = async () => {
             await scaleBackend(MIN_BACKENDS);
 
             console.log(
-                `✅ Minimum backend requirement restored: ${MIN_BACKENDS} backends`
+                `Minimum backend requirement restored: ${MIN_BACKENDS} backends`
             );
 
             lowLoadSince = null;
@@ -266,7 +266,7 @@ const checkLoad = async () => {
         ) {
 
             console.log(
-                `🔥 2 → 3 threshold crossed: ${rate} >= ${SCALE_2_TO_3_THRESHOLD}`
+                `2 → 3 threshold crossed: ${rate} >= ${SCALE_2_TO_3_THRESHOLD}`
             );
 
             scalingInProgress = true;
@@ -274,7 +274,7 @@ const checkLoad = async () => {
             await scaleBackend(3);
 
             console.log(
-                "✅ 2 → 3 scaling process finished"
+                "2 → 3 scaling process finished"
             );
 
             lowLoadSince = null;
@@ -287,7 +287,7 @@ const checkLoad = async () => {
         ) {
 
             console.log(
-                `🔥 3 → 4 threshold crossed: ${rate} >= ${SCALE_3_TO_4_THRESHOLD}`
+                `3 → 4 threshold crossed: ${rate} >= ${SCALE_3_TO_4_THRESHOLD}`
             );
 
             scalingInProgress = true;
@@ -295,7 +295,7 @@ const checkLoad = async () => {
             await scaleBackend(4);
 
             console.log(
-                "✅ 3 → 4 scaling process finished"
+                "3 → 4 scaling process finished"
             );
 
             lowLoadSince = null;
@@ -313,7 +313,7 @@ const checkLoad = async () => {
                 lowLoadSince = Date.now();
 
                 console.log(
-                    "🕐 Low load detected. Starting scale-down timer..."
+                    "Low load detected. Starting scale-down timer..."
                 );
 
             }
@@ -322,7 +322,7 @@ const checkLoad = async () => {
                 Date.now() - lowLoadSince;
 
             console.log(
-                `⏳ Low load duration: ${Math.floor(
+                `Low load duration: ${Math.floor(
                     lowLoadDuration / 1000
                 )}s / ${SCALE_DOWN_STABLE_TIME / 1000
                 }s`
@@ -337,7 +337,7 @@ const checkLoad = async () => {
                     backendCount - 1;
 
                 console.log(
-                    `📉 Low load sustained. Scaling ${backendCount} → ${target}`
+                    `Low load sustained. Scaling ${backendCount} → ${target}`
                 );
 
                 scalingInProgress = true;
@@ -345,7 +345,7 @@ const checkLoad = async () => {
                 await scaleDownBackend(target);
 
                 console.log(
-                    `✅ ${backendCount} → ${target} scale-down finished`
+                    `${backendCount} → ${target} scale-down finished`
                 );
 
                 lowLoadSince = null;
@@ -354,24 +354,20 @@ const checkLoad = async () => {
         }
 
         else {
-
-            // Load is no longer low
             lowLoadSince = null;
 
             console.log(
-                "🟢 No scaling required"
+                "No scaling required"
             );
         }
 
     }
 
     catch (error) {
-
         console.error(
-            "❌ Autoscaling error:",
+            "Autoscaling error:",
             error
         );
-
     }
 
     finally {
